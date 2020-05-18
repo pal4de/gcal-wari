@@ -6,7 +6,7 @@ const wrap = (
   let attrStr = '';
   if (attr) {
     for (const a in attr) {
-      attrStr += ` ${a}="${attr[a]}"`;
+      attrStr += ` ${a.replace('_', '-')}="${attr[a]}"`;
     }
   }
   return `<${tag}${attrStr}>${content}</${tag}>`;
@@ -58,7 +58,7 @@ const eventGallery = (eventTable: TableValue[][]): string => {
   let list = '';
   const eventTableObj = tableToObject<Event>(eventTable);
   for (const event of eventTableObj) {
-    list += wrap('div', event.name, {class: 'eventList_card', value: event.name });
+    list += wrap('div', event.name, {class: 'eventList_item', value: event.name, draggable: true, data_length: 2});
   }
   return wrap('div', list, {class: 'eventList'});
 };
@@ -66,27 +66,13 @@ const eventGallery = (eventTable: TableValue[][]): string => {
 interface TimetableData {
   start: Date[],
   end: Date[],
-  sun: string[],
-  mon: string[],
-  tue: string[],
-  wed: string[],
-  thu: string[],
-  fri: string[],
-  sat: string[],
 }
 const timetable = (data: TableValue[][]): string => {
   const timetableData: TimetableData = {
     start: [],
     end: [],
-    sun: [],
-    mon: [],
-    tue: [],
-    wed: [],
-    thu: [],
-    fri: [],
-    sat: [],
   };
-  const keyList: (keyof TimetableData)[] = ['start', 'end', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  const keyList: (keyof TimetableData)[] = ['start', 'end'];
   data.shift();
   for (const row of data) {
     for (let i = 0; i < keyList.length; i++) {
@@ -102,10 +88,12 @@ const timetable = (data: TableValue[][]): string => {
     timetableHtml += wrap('div', day, {class: 'timetable_day', style: `grid-row: 1; grid-column: ${i + 2}`});
   }
   for (let i = 0; i < timetableData.start.length; i++) {
-    const timeFormat = (date: Date) => `${date.getHours()}:${('00' + date.getMinutes()).slice(-2)}`;
+    const zeroPad = (n: number) => String(n).padStart(2, '0');
+    const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
     const start = timetableData.start[i];
     const end = timetableData.end[i];
-    let html = wrap('div', timeFormat(start), {class: 'timetable_time_start'}) + wrap('div', timeFormat(end), {class: 'timetable_time_end'})
+    let html = wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
+    html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
     html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(i) + 2}; grid-column: 1`});
     timetableHtml += html;
   }

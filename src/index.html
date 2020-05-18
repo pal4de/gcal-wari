@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<base target="_top">
-		<?!= getContent('style'); ?>
-	</head>
-	<body>
-		<?!= app() ?>
-		<?!= getContent('script'); ?>
-	</body>
+    <head>
+        <base target="_top">
+        <link href="https://necolas.github.io/normalize.css/8.0.1/normalize.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+        <!-- weightをへらす！！！ -->
+        <?!= getContent('style'); ?>
+    </head>
+    <body>
+        <?!= app() ?>
+        <?!= getContent('script'); ?>
+    </body>
 </html>

@@ -1,33 +1,71 @@
 <style>
-	body {
-		background-color: #fff;
-		font-family: Arial, Helvetica, sans-serif;
-	}
-	.timetable {
-		display: grid;
-		color: #ddd;
-		max-width: 50%;
-		margin: 0 auto;
-		-moz-user-select: none;
-		-webkit-user-select: none;
-	}
-	.timetable > div {
-		display: flex;
-		padding: 5px;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-	}
-	.timetable_time,
-	.timetable_day {
-		font-weight: bold;
-	}
-	.timetable_placeholder::before {
-		content: "";
-		display: inline-block;
-		height: 5px;
-		width: 5px;
-		border-radius: 100%;
-		background-color: #ddd;
-	}
+    body {
+        display: flex;
+        color: #555;
+        font-family: 'Noto Sans JP', sans-serif;
+        background-color: #fff;
+        align-items: center;
+        justify-content: center;
+        --cell-size: 65px;
+    }
+    .timetable {
+        display: grid;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+    }
+    .timetable > div {
+        display: flex;
+        width: var(--cell-size);
+        height: var(--cell-size);
+        padding: 10px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .timetable > .timetable_time {
+        font-weight: bold;
+        justify-content: space-around;
+    }
+    .timetable > .timetable_day {
+        height: auto;
+        font-weight: bold;
+    }
+    .timetable_time input {
+        width: 100%;
+        color: inherit;
+        font-weight: inherit;
+        font-family: inherit;
+        background-color: transparent;
+        border: none;
+        text-align: center;
+        cursor: text;
+    }
+    .timetable_time input::-webkit-clear-button {
+        display: none;
+    }
+    .timetable > .timetable_placeholder::before {
+        content: "";
+        display: inline-block;
+        height: 5px;
+        width: 5px;
+        border-radius: 100%;
+        background-color: #eee;
+    }
+
+    .eventList {
+        display: flex;
+        flex-direction: column;
+    }
+    .eventList_item {
+        width: var(--cell-size);
+        height: var(--cell-size);
+        padding: 10px;
+        margin: 10px;
+        background-color: #fff;
+        font-size: 0.75em;
+        font-weight: bold;
+        border-radius: 10px;
+        box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.2);
+        cursor: grab;
+    }
 </style>
