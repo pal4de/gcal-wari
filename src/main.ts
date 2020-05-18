@@ -40,9 +40,9 @@ const tableToObject = <T>(table: ((keyof T)[] | (T[keyof T])[])[]): T[] => {
   const result: T[] = [];
   const keyList = table.shift() as (keyof T)[];
   const tableData = table as (T[keyof T])[][];
-  for (const i in tableData) {
+  for (let i = 0; i < tableData.length; i++) {
     const obj = {} as T;
-    for (const j in tableData[i]) {
+    for (let j = 0; j < tableData[i].length; j++) {
       obj[keyList[j]] = tableData[i][j];
     }
     result.push(obj);
@@ -63,17 +63,54 @@ const eventGallery = (eventTable: TableValue[][]): string => {
   return wrap('select', list);
 };
 
+interface TimetableData {
+  start: Date[],
+  end: Date[],
+  sun: string[],
+  mon: string[],
+  tue: string[],
+  wed: string[],
+  thu: string[],
+  fri: string[],
+  sat: string[],
+}
 const timetable = (data: TableValue[][]): string => {
-  let table = '';
-  for (const i in data) {
-    const tag = i !== '0' ? 'td' : 'th';
-    let row = '';
-    for (const cell of data[i]) {
-      row += wrap(tag, cell);
+  const timetableData: TimetableData = {
+    start: [],
+    end: [],
+    sun: [],
+    mon: [],
+    tue: [],
+    wed: [],
+    thu: [],
+    fri: [],
+    sat: [],
+  };
+  const keyList: (keyof TimetableData)[] = ['start', 'end', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+  data.shift();
+  for (const row of data) {
+    for (let i = 0; i < keyList.length; i++) {
+      timetableData[keyList[i]].push(row[i]);
     }
-    table += wrap('tr', row);
   }
-  return wrap('table', table);
+
+  let timetableHtml = '';
+
+  const dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  for (let i = 0; i < 7; i++) {
+    let day = dayList[i];
+    timetableHtml += wrap('div', day, {class: 'timetable_day', style: `grid-row: 1; grid-column: ${i + 2}`});
+  }
+  for (let i = 0; i < timetableData.start.length; i++) {
+    const timeFormat = (date: Date) => `${date.getHours()}:${('00' + date.getMinutes()).slice(-2)}`;
+    const start = timetableData.start[i];
+    const end = timetableData.end[i];
+    let html = wrap('div', timeFormat(start), {class: 'timetable_time_start'}) + wrap('div', timeFormat(end), {class: 'timetable_time_end'})
+    html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(i) + 2}; grid-column: 1`});
+    timetableHtml += html;
+  }
+
+  return wrap('div', timetableHtml, { class: 'timetable' });
 };
 
 const app = (): string => {
@@ -93,7 +130,6 @@ const doGet = (e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutp
   out.setTitle('Gcal-wari: Timetable on Google Calendar');
   return out;
 };
-
 // const doPost = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.HTML.HtmlOutput => {
 //   return
 // }
