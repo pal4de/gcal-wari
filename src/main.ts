@@ -58,9 +58,9 @@ const eventGallery = (eventTable: TableValue[][]): string => {
   let list = '';
   const eventTableObj = tableToObject<Event>(eventTable);
   for (const event of eventTableObj) {
-    list += wrap('option', event.name, { value: event.name });
+    list += wrap('div', event.name, {class: 'eventList_card', value: event.name });
   }
-  return wrap('select', list);
+  return wrap('div', list, {class: 'eventList'});
 };
 
 interface TimetableData {
@@ -108,6 +108,11 @@ const timetable = (data: TableValue[][]): string => {
     let html = wrap('div', timeFormat(start), {class: 'timetable_time_start'}) + wrap('div', timeFormat(end), {class: 'timetable_time_end'})
     html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(i) + 2}; grid-column: 1`});
     timetableHtml += html;
+  }
+  for (let i = 0; i < timetableData.start.length; i++) {
+    for (let j = 0; j < 7; j++) {
+      timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-row: ${i + 2}; grid-column: ${j + 2}`});
+    }
   }
 
   return wrap('div', timetableHtml, { class: 'timetable' });

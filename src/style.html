@@ -5,11 +5,29 @@
 	}
 	.timetable {
 		display: grid;
-		color: #888;
+		color: #ddd;
 		max-width: 50%;
+		margin: 0 auto;
+		-moz-user-select: none;
+		-webkit-user-select: none;
 	}
 	.timetable > div {
+		display: flex;
 		padding: 5px;
-		text-align: center;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+	.timetable_time,
+	.timetable_day {
+		font-weight: bold;
+	}
+	.timetable_placeholder::before {
+		content: "";
+		display: inline-block;
+		height: 5px;
+		width: 5px;
+		border-radius: 100%;
+		background-color: #ddd;
 	}
 </style>
