@@ -58,7 +58,12 @@ const eventGallery = (eventTable: TableValue[][]): string => {
   let list = '';
   const eventTableObj = tableToObject<Event>(eventTable);
   eventTableObj.forEach((event, index) => {
-    list += wrap('div', event.name, {id: `item_${index}`, class: 'eventList_item', draggable: true, data_name: event.name, data_len: 2});
+    list += wrap('div', event.name, {
+      class: 'eventCard',
+      draggable: true,
+      data_name: event.name,
+      data_len: 2
+    });
   });
   for (const event of eventTableObj) {
   }
@@ -87,9 +92,8 @@ const timetable = (data: TableValue[][]): string => {
   const dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   dayList.forEach((day, index) => {
     timetableHtml += wrap('div', day, {
-      id: `item_${index}`,
       class: 'timetable_day',
-      style: `grid-row: 1; grid-column: ${index + 2}`
+      style: `grid-area: 1/${index + 2};`
     });
   });
   timetableData.start.forEach((_, index) => {
@@ -99,16 +103,16 @@ const timetable = (data: TableValue[][]): string => {
     const end = timetableData.end[index];
     let html = wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
     html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
-    html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(index) + 2}; grid-column: 1`});
+    html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
     timetableHtml += html;
   });
   timetableData.start.forEach((_, col) => {
     [...Array(7)].forEach((_, row) => {
-      timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-row: ${col + 2}; grid-column: ${row + 2}`});
+      timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col + 2}/${row + 2};`});
     });
   });
 
-  return wrap('div', timetableHtml, { class: 'timetable' });
+  return wrap('div', timetableHtml, {id: 'timetable', class: 'timetable'});
 };
 
 const app = (): string => {

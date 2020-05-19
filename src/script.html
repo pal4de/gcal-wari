@@ -1,37 +1,43 @@
 <script>
+    function triggerEvent(element, event) {
+        var evt = document.createEvent("HTMLEvents");
+        evt.initEvent(event, true, true ); // event type, bubbling, cancelable
+        return element.dispatchEvent(evt);
+    }
     const sel = document.querySelector.bind(document);
     const selAll = document.querySelectorAll.bind(document);
+    const app = {};
     
-    selAll('.eventList_item').forEach((item) => {
+    selAll('.eventCard').forEach((item) => {
         const len = Number(item.dataset.len);
         const cellSizeRaw = getComputedStyle(sel('body')).getPropertyValue('--cell-size');
         const cellSize = Number(cellSizeRaw.match(/\d+/)[0]);
         item.style.height = `${cellSize * len}px`;
 
         item.addEventListener('dragstart', (e) => {
-            setTimeout(() => {e.target.classList.add('dragged');}, 1);
-            e.dataTransfer.setData('plain/text', this.dataset.name);
-        }, false);
+            setTimeout(() => e.target.classList.add('dragged'), 1);
+            e.dataTransfer.effectAllowed = 'copy';
+            const clone = item.cloneNode(true);
+            clone.style.gridArea = '2/2';
+            clone.style.pointerEvents = 'none';
+            app.clone = sel('#timetable').appendChild(clone);
+        });
         item.addEventListener('dragend', (e) => {
-            setTimeout(() => {e.target.classList.remove('dragged');}, 1);
-        }, false);
+            e.target.classList.remove('dragged');
+        });
     });
+
     selAll('.timetable_placeholder').forEach((item) => {
+        item.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
         item.addEventListener('dragenter', (e) => {
-            const cloneName = e.dataTransfer.getData('plain/text');
-            const clone = sel(`.eventList_item[data-name=${cloneName}]`).cloneNode();
-            // sel('body').
-        }, false);
-        item.addEventListener('dragleave', (e) => {
-        }, false);
-    });
-    selAll('.timetable_placeholder').forEach((item) => {
-        item.addEventListener('dragenter', (e) => {
-            const cloneName = e.dataTransfer.getData('plain/text');
-            const clone = sel(`.eventList_item[data-name=${cloneName}]`).cloneNode();
-            // sel('body').
-        }, false);
-        item.addEventListener('dragleave', (e) => {
-        }, false);
+            app.clone.style.gridArea = item.style.gridArea;
+        });
+        item.addEventListener('drop', (e) => {
+            e.preventDefault();
+            app.clone.style.pointerEvents = 'auto';
+        });
     });
 </script>
