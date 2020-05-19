@@ -1,3 +1,37 @@
 <script>
+    const sel = document.querySelector.bind(document);
+    const selAll = document.querySelectorAll.bind(document);
+    
+    selAll('.eventList_item').forEach((item) => {
+        const len = Number(item.dataset.len);
+        const cellSizeRaw = getComputedStyle(sel('body')).getPropertyValue('--cell-size');
+        const cellSize = Number(cellSizeRaw.match(/\d+/)[0]);
+        item.style.height = `${cellSize * len}px`;
 
+        item.addEventListener('dragstart', (e) => {
+            setTimeout(() => {e.target.classList.add('dragged');}, 1);
+            e.dataTransfer.setData('plain/text', this.dataset.name);
+        }, false);
+        item.addEventListener('dragend', (e) => {
+            setTimeout(() => {e.target.classList.remove('dragged');}, 1);
+        }, false);
+    });
+    selAll('.timetable_placeholder').forEach((item) => {
+        item.addEventListener('dragenter', (e) => {
+            const cloneName = e.dataTransfer.getData('plain/text');
+            const clone = sel(`.eventList_item[data-name=${cloneName}]`).cloneNode();
+            // sel('body').
+        }, false);
+        item.addEventListener('dragleave', (e) => {
+        }, false);
+    });
+    selAll('.timetable_placeholder').forEach((item) => {
+        item.addEventListener('dragenter', (e) => {
+            const cloneName = e.dataTransfer.getData('plain/text');
+            const clone = sel(`.eventList_item[data-name=${cloneName}]`).cloneNode();
+            // sel('body').
+        }, false);
+        item.addEventListener('dragleave', (e) => {
+        }, false);
+    });
 </script>

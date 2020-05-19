@@ -40,13 +40,13 @@ const tableToObject = <T>(table: ((keyof T)[] | (T[keyof T])[])[]): T[] => {
   const result: T[] = [];
   const keyList = table.shift() as (keyof T)[];
   const tableData = table as (T[keyof T])[][];
-  for (let i = 0; i < tableData.length; i++) {
+  tableData.forEach((row) => {
     const obj = {} as T;
-    for (let j = 0; j < tableData[i].length; j++) {
-      obj[keyList[j]] = tableData[i][j];
-    }
+    row.forEach((value, index) => {
+      obj[keyList[index]] = value;
+    });
     result.push(obj);
-  }
+  });
   return result;
 };
 
@@ -57,8 +57,10 @@ type Event = {
 const eventGallery = (eventTable: TableValue[][]): string => {
   let list = '';
   const eventTableObj = tableToObject<Event>(eventTable);
+  eventTableObj.forEach((event, index) => {
+    list += wrap('div', event.name, {id: `item_${index}`, class: 'eventList_item', draggable: true, data_name: event.name, data_len: 2});
+  });
   for (const event of eventTableObj) {
-    list += wrap('div', event.name, {class: 'eventList_item', value: event.name, draggable: true, data_length: 2});
   }
   return wrap('div', list, {class: 'eventList'});
 };
@@ -75,33 +77,36 @@ const timetable = (data: TableValue[][]): string => {
   const keyList: (keyof TimetableData)[] = ['start', 'end'];
   data.shift();
   for (const row of data) {
-    for (let i = 0; i < keyList.length; i++) {
-      timetableData[keyList[i]].push(row[i]);
-    }
+    keyList.forEach((key, index) => {
+      timetableData[key].push(row[index]);
+    });
   }
 
   let timetableHtml = '';
 
   const dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  for (let i = 0; i < 7; i++) {
-    let day = dayList[i];
-    timetableHtml += wrap('div', day, {class: 'timetable_day', style: `grid-row: 1; grid-column: ${i + 2}`});
-  }
-  for (let i = 0; i < timetableData.start.length; i++) {
+  dayList.forEach((day, index) => {
+    timetableHtml += wrap('div', day, {
+      id: `item_${index}`,
+      class: 'timetable_day',
+      style: `grid-row: 1; grid-column: ${index + 2}`
+    });
+  });
+  timetableData.start.forEach((_, index) => {
     const zeroPad = (n: number) => String(n).padStart(2, '0');
     const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
-    const start = timetableData.start[i];
-    const end = timetableData.end[i];
+    const start = timetableData.start[index];
+    const end = timetableData.end[index];
     let html = wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
     html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
-    html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(i) + 2}; grid-column: 1`});
+    html = wrap('div', html, {class: 'timetable_time', style: `grid-row: ${Number(index) + 2}; grid-column: 1`});
     timetableHtml += html;
-  }
-  for (let i = 0; i < timetableData.start.length; i++) {
-    for (let j = 0; j < 7; j++) {
-      timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-row: ${i + 2}; grid-column: ${j + 2}`});
-    }
-  }
+  });
+  timetableData.start.forEach((_, col) => {
+    [...Array(7)].forEach((_, row) => {
+      timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-row: ${col + 2}; grid-column: ${row + 2}`});
+    });
+  });
 
   return wrap('div', timetableHtml, { class: 'timetable' });
 };

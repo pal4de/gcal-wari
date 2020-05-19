@@ -1,37 +1,50 @@
 <style>
+    :root {
+        --color-text: hsl(0, 0%, 33%);
+        --color-backround: hsl(0, 0%, 100%);
+        --color-light: hsl(0, 0%, 90%);
+    }
     body {
         display: flex;
-        color: #555;
+        box-sizing: border-box;
+        max-height: 100vh;
+        color: var(--color-text);
         font-family: 'Noto Sans JP', sans-serif;
-        background-color: #fff;
-        align-items: center;
+        background-color: var(--color-backround);
         justify-content: center;
-        --cell-size: 65px;
+        --cell-size: 75px;
     }
     .timetable {
         display: grid;
-        -moz-user-select: none;
-        -webkit-user-select: none;
+        grid-auto-columns: var(--cell-size);
+        grid-auto-rows: var(--cell-size);
+        grid-template-rows: 45px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        margin-right: 17px;
+    }
+    .timetable:hover {
+        overflow-y: scroll;
+        margin-right: 0;
     }
     .timetable > div {
         display: flex;
-        width: var(--cell-size);
-        height: var(--cell-size);
-        padding: 10px;
+        padding: 5px;
+        font-weight: bold;
         flex-direction: column;
         align-items: center;
         justify-content: center;
     }
-    .timetable > .timetable_time {
-        font-weight: bold;
-        justify-content: space-around;
-    }
     .timetable > .timetable_day {
+        position: sticky;
+        top: 0;
         height: auto;
-        font-weight: bold;
+        background-color: var(--color-backround);
+        text-transform: lowercase;
     }
     .timetable_time input {
         width: 100%;
+        padding-left: 1em;
         color: inherit;
         font-weight: inherit;
         font-family: inherit;
@@ -49,23 +62,36 @@
         height: 5px;
         width: 5px;
         border-radius: 100%;
-        background-color: #eee;
+        background-color: var(--color-light);
     }
 
     .eventList {
-        display: flex;
-        flex-direction: column;
+        overflow-x: auto;
+        overflow-y: hidden;
+        margin-right: 17px;
+        padding-bottom: 20px;
+    }
+    .eventList:hover {
+        overflow-y: scroll;
+        margin-right: 0;
     }
     .eventList_item {
+        box-sizing: border-box;
         width: var(--cell-size);
         height: var(--cell-size);
-        padding: 10px;
-        margin: 10px;
-        background-color: #fff;
-        font-size: 0.75em;
+        padding: 5px;
+        margin: 20px 15px 0;
+        border: 2px solid var(--color-light);
+        background-color: hsl(0, 0%, 100%);
+        font-size: 75%;
         font-weight: bold;
         border-radius: 10px;
-        box-shadow: 0px 10px 15px -5px rgba(0, 0, 0, 0.2);
+        box-shadow: 0px 10px 15px -5px hsla(0, 0%, 0%, 0.2);
         cursor: grab;
+    }
+    .eventList_item.dragged {
+        color: var(--color-light);
+        box-shadow: none;
+        border-style: dashed;
     }
 </style>
