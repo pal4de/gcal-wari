@@ -9,10 +9,6 @@ const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
 const app: Dict = {};
 
-interface MyElement extends Element {
-    dataset: {[key: string]: string},
-    style: {[key: string]: string},
-}
 selAll('.eventCard').forEach((item) => {
     if (!(item instanceof HTMLElement)) throw Error();
     const len = Number(item.dataset.len);
