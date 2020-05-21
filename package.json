@@ -1,7 +1,7 @@
 {
   "name": "gcal-wari",
   "version": "1.0.0",
-  "description": "",
+  "description": "Assisting creation of timetable on Google Calendar.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +12,7 @@
   "devDependencies": {
     "@google/clasp": "^2.3.0",
     "@types/google-apps-script": "^1.0.14",
-    "@types/node": "^14.0.1"
+    "@types/node": "^14.0.1",
+    "node-sass": "^4.14.1"
   }
 }
