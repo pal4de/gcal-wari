@@ -73,7 +73,7 @@ body {
     }
 }
 
-.eventList { /* timetableと同じようにgridにしたい */
+.eventList { // timetableと同じようにgridにしたい
     overflow-x: auto;
     overflow-y: hidden;
     margin-right: 17px;
@@ -85,7 +85,7 @@ body {
 }
 
 .eventCard {
-    --shadowAlpha: 0.0;
+    --shadow-alpha: 0.0;
     box-sizing: border-box;
     width: $cell-size;
     height: $cell-size;
@@ -95,11 +95,11 @@ body {
     background-color: hsl(0, 0%, 100%);
     border: 2px solid $color-light;
     border-radius: 10px;
-    box-shadow: 0px 10px 20px -5px hsla(236, 29%, 51%, var(--shadowAlpha));
+    box-shadow: 0px 10px 20px -5px hsla(236, 29%, 51%, var(--shadow-alpha));
     transition: box-shadow 0.1s ease-in-out;
     cursor: grab;
     &:hover {
-        --shadowAlpha: 0.2;
+        --shadow-alpha: 0.2;
     }
     &.dragged {
         color: $color-light;
