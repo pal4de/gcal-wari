@@ -18,7 +18,10 @@
             setTimeout(() => e.target.classList.add('dragged'), 1);
             e.dataTransfer.effectAllowed = 'copy';
             const clone = item.cloneNode(true);
-            clone.style.gridArea = '2/2';
+            clone.style.height = `auto`; // 気持ちわるい
+            clone.style.width = `auto`; // 気持ちわるい
+            clone.style.gridRowStart = '2';
+            clone.style.gridColumnStart = '2';
             clone.style.pointerEvents = 'none';
             app.clone = sel('#timetable').appendChild(clone);
         });
@@ -33,7 +36,8 @@
             e.dataTransfer.dropEffect = 'copy';
         });
         item.addEventListener('dragenter', (e) => {
-            app.clone.style.gridArea = item.style.gridArea;
+            app.clone.style.gridRowStart = item.style.gridRowStart;
+            app.clone.style.gridColumnStart = item.style.gridColumnStart;
         });
         item.addEventListener('drop', (e) => {
             e.preventDefault();
