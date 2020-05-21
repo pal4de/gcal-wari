@@ -1,0 +1,176 @@
+@charset "UTF-8";
+body {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  max-height: 100vh;
+  color: #545454;
+  font-family: 'Noto Sans JP', sans-serif;
+  background-color: white;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.timetable {
+  display: -ms-grid;
+  display: grid;
+  margin-right: 17px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  grid-auto-columns: 75px;
+  grid-auto-rows: 75px;
+  -ms-grid-rows: 45px;
+      grid-template-rows: 45px;
+  gap: 5px;
+}
+
+.timetable:hover {
+  overflow-y: scroll;
+  margin-right: 0;
+}
+
+.timetable_day {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 5px;
+  font-weight: bold;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  height: auto;
+  background-color: white;
+  text-transform: lowercase;
+}
+
+.timetable_time {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 5px;
+  font-weight: bold;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.timetable_time input {
+  width: 100%;
+  padding-left: 1em;
+  color: inherit;
+  font-weight: inherit;
+  font-family: inherit;
+  background-color: transparent;
+  border: none;
+  text-align: center;
+  cursor: text;
+}
+
+.timetable_time input::-webkit-clear-button {
+  display: none;
+}
+
+.timetable_placeholder {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 5px;
+  font-weight: bold;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.timetable_placeholder::before {
+  content: "";
+  display: inline-block;
+  height: 5px;
+  width: 5px;
+  border-radius: 100%;
+  background-color: #e6e6e6;
+}
+
+.eventList {
+  /* timetableと同じようにgridにしたい */
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-right: 17px;
+  padding-bottom: 20px;
+}
+
+.eventList:hover {
+  overflow-y: scroll;
+  margin-right: 0;
+}
+
+.eventCard {
+  --shadowAlpha: 0.0;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  width: 75px;
+  height: 75px;
+  padding: 5px;
+  font-size: 75%;
+  font-weight: bold;
+  background-color: white;
+  border: 2px solid #e6e6e6;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 10px 20px -5px hsla(236, 29%, 51%, var(--shadowAlpha));
+          box-shadow: 0px 10px 20px -5px hsla(236, 29%, 51%, var(--shadowAlpha));
+  -webkit-transition: -webkit-box-shadow 0.1s ease-in-out;
+  transition: -webkit-box-shadow 0.1s ease-in-out;
+  transition: box-shadow 0.1s ease-in-out;
+  transition: box-shadow 0.1s ease-in-out, -webkit-box-shadow 0.1s ease-in-out;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.eventCard:hover {
+  --shadowAlpha: 0.2;
+}
+
+.eventCard.dragged {
+  color: #e6e6e6;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  border-style: dashed;
+}
+
+.eventList .eventCard {
+  margin: 20px 15px 0;
+}
+
+.timetable .eventCard {
+  -ms-grid-row-span: attr(data-len);
+      grid-row-end: span attr(data-len);
+  -ms-grid-column-span: 1;
+      grid-column-end: span 1;
+}
+/*# sourceMappingURL=style.css.map */
