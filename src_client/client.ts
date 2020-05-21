@@ -11,7 +11,9 @@ const app: Dict = {};
 
 selAll('.eventCard').forEach((item) => {
     const len = Number(item.dataset.len);
-    const cellSizeRaw = getComputedStyle(sel('body')).getPropertyValue('--cell-size');
+    const body = sel('body');
+    if (body === null) throw Error();
+    const cellSizeRaw = getComputedStyle(body).getPropertyValue('--cell-size');
     const cellSize = Number(cellSizeRaw.match(/\d+/)[0]);
     item.style.height = `${cellSize * len}px`;
 

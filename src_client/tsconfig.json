@@ -11,8 +11,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "types": [
-      "@types/node",
-      "@types/google-apps-script"
     ]
   }
 }
