@@ -1,5 +1,5 @@
 node_modules
 /app/*
-!/app/appscript.json
+!/app/appsscript.json
 *.js
 *.css
