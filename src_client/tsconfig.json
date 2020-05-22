@@ -6,7 +6,6 @@
       "ESNext",
       "DOM"
     ],
-    "outDir": "../app/",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
