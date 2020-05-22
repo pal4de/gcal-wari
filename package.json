@@ -4,7 +4,11 @@
   "description": "Assisting creation of timetable on Google Calendar.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:js": "cat src_client/client.js | sed -e '1 i <script>' -e '$ a </script>' > app/client.js.html",
+    "build:css": "cat src_client/style.css | sed -e '1 i <style>' -e '$ a </style>' > app/style.css.html",
+    "build:html": "cp src_client/index.html app/index.html",
+    "build": "npm run build:js & npm run build:css & npm run build:html",
+    "push": "npx clasp push"
   },
   "author": "",
   "license": "ISC",

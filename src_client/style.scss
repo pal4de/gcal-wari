@@ -58,6 +58,10 @@ body {
             &::-webkit-clear-button {
                 display: none;
             }
+            &::-webkit-datetime-edit,
+            &::-webkit-calendar-picker-indicator {
+                display: none;
+            }
         }
     }
     &_placeholder{
