@@ -4,12 +4,20 @@
   "description": "Assisting creation of timetable on Google Calendar.",
   "main": "index.js",
   "scripts": {
-    "push": "npx clasp push",
-    "open": "echo '' | npx clasp open --webapp",
-    "build:js": "cat src_client/client.js | sed -e '1 i <script>' -e '$ a </script>' > app/script.js.html",
-    "build:css": "cat src_client/style.css | sed -e '1 i <style>' -e '$ a </style>' > app/style.css.html",
-    "build:html": "cp src_client/index.html app/index.html",
-    "build": "npm run build:js & npm run build:css & npm run build:html && npm run push && npm run open"
+    "push": "clasp push",
+    "open-clasp": "echo '' | clasp open --webapp",
+    "open-static": "wslview https://script.google.com/macros/s/AKfycbwnoXDqIoCPU17gIdWi1lBvGo5HPPy7NnIhoL6IBj4/exec",
+    "open": "npm run open-static",
+    "build:client:js:ts-js": "tsc -p src_client",
+    "build:client:js:js-html": "cat dest/client.js | sed -e '1 i <script>' -e '$ a </script>' > app/script.js.html",
+    "build:client:css:sass-css": "node-sass src_client/style.scss dest/style.css",
+    "build:client:css:css-html": "cat dest/style.css | sed -e '1 i <style>' -e '$ a </style>' > app/style.css.html",
+    "build:client:html": "cp src_client/index.html app/index.html",
+    "build:client:js": "run-s build:client:js:*",
+    "build:client:css": "run-s build:client:css:*",
+    "build:client": "run-p build:client:*",
+    "build:server": "tsc -p src_server",
+    "build": "run-p build:* && npm run push"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +25,9 @@
   "devDependencies": {
     "@google/clasp": "^2.3.0",
     "@types/google-apps-script": "^1.0.14",
-    "@types/node": "^14.0.1"
+    "chokidar-cli": "^2.1.0",
+    "npm-run-all": "^4.1.5",
+    "sass-node": "^4.11.2",
+    "typescript": "^3.9.3"
   }
 }

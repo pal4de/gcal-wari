@@ -18,7 +18,7 @@ const getContent = (name: string): string => {
 
 type TableValue = any;
 const getTable = (name: string): TableValue[][] => {
-  // バージョン情報を残しておきたい
+  // バージョン情報を残しておきたい...
   const property = PropertiesService.getScriptProperties();
   let databaseId = property.getProperty('db_events');
   if (databaseId == null) {
