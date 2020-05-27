@@ -1,4 +1,6 @@
-type Dict = {[key: string]: any};
+type AppData = {
+    clone: HTMLElement | null,
+};
 
 function triggerEvent(element: Node, event: string) {
     var evt = document.createEvent("HTMLEvents");
@@ -7,7 +9,9 @@ function triggerEvent(element: Node, event: string) {
 }
 const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
-const app: Dict = {};
+const app: AppData = {
+    clone: null
+};
 
 const registerCardEvents = (item: HTMLElement): void => {
     item.addEventListener('dragstart', (e) => {
@@ -15,6 +19,7 @@ const registerCardEvents = (item: HTMLElement): void => {
 
         if (!e.dataTransfer) throw Error();
         e.dataTransfer.effectAllowed = 'copy';
+
         const clone = item.cloneNode(true) as HTMLElement;
         clone.classList.add('ghost');
         registerCardEvents(clone);
@@ -42,10 +47,12 @@ selAll('.timetable_placeholder').forEach((item) => {
         e.dataTransfer.dropEffect = 'copy';
     });
     item.addEventListener('dragenter', (e) => {
+        if (!app.clone) throw Error();
         app.clone.style.gridRowStart = item.style.gridRowStart;
         app.clone.style.gridColumnStart = item.style.gridColumnStart;
     });
     item.addEventListener('drop', (e) => {
+        if (!app.clone) throw Error();
         e.preventDefault();
         app.clone.classList.remove('ghost');
     });
