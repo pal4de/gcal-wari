@@ -13,7 +13,7 @@ body {
     justify-content: center;
 }
 
-@mixin eventCardContainer {
+@mixin cardContainer {
     display: grid;
     margin-right: 17px;
     overflow-x: auto;
@@ -28,7 +28,7 @@ body {
 }
 
 .timetable {
-    @include eventCardContainer;
+    @include cardContainer;
     grid-template-rows: 45px;
 
     @mixin timetable_cell {
@@ -78,11 +78,11 @@ body {
 }
 
 .eventList {
-    @include eventCardContainer;
+    @include cardContainer;
     padding: 10px;
 }
 
-.eventCard {
+.card {
     --shadow-alpha: 0.0;
     padding: 5px;
     font-size: 75%;

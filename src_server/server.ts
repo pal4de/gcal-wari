@@ -59,7 +59,7 @@ const eventGallery = (eventTable: TableValue[][]): string => {
   const eventTableObj = tableToObject<Event>(eventTable);
   eventTableObj.forEach((event, index) => {
     list += wrap('div', event.name, {
-      class: 'eventCard',
+      class: 'card',
       draggable: true,
       data_name: event.name,
       data_len: 2

@@ -9,11 +9,7 @@ const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
 const app: Dict = {};
 
-selAll('.eventCard').forEach((item) => {
-    if (!(item instanceof HTMLElement)) throw Error();
-    const len = Number(item.dataset.len);
-    item.style.gridRowEnd = `span ${len}`;
-
+const registerCardEvents = (item: HTMLElement): void => {
     item.addEventListener('dragstart', (e) => {
         setTimeout(() => item.classList.add('placeholder'), 1);
 
@@ -21,6 +17,7 @@ selAll('.eventCard').forEach((item) => {
         e.dataTransfer.effectAllowed = 'copy';
         const clone = item.cloneNode(true) as HTMLElement;
         clone.classList.add('ghost');
+        registerCardEvents(clone);
 
         const timetable = sel('#timetable')!;
         app.clone = timetable.appendChild(clone);
@@ -28,6 +25,13 @@ selAll('.eventCard').forEach((item) => {
     item.addEventListener('dragend', (e) => {
         item.classList.remove('placeholder');
     });
+};
+selAll('.card').forEach((item) => {
+    if (!(item instanceof HTMLElement)) throw Error();
+    const len = Number(item.dataset.len);
+    item.style.gridRowEnd = `span ${len}`;
+
+    registerCardEvents(item);
 });
 
 selAll('.timetable_placeholder').forEach((item) => {
