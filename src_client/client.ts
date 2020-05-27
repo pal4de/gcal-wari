@@ -12,49 +12,37 @@ const app: Dict = {};
 selAll('.eventCard').forEach((item) => {
     if (!(item instanceof HTMLElement)) throw Error();
     const len = Number(item.dataset.len);
-    const body = sel('body');
-    if (body === null) throw Error();
-    const cellSizeRaw = getComputedStyle(body).getPropertyValue('--cell-size');
-    const cellSizeRawMatch = cellSizeRaw.match(/\d+/);
-    if (!cellSizeRawMatch) throw Error();
-    const cellSize = Number(cellSizeRawMatch[0]);
-    item.style.height = `${cellSize * len}px`;
+    item.style.gridRowEnd = `span ${len}`;
 
     item.addEventListener('dragstart', (e) => {
-        setTimeout(() => item.classList.add('dragged'), 1);
+        setTimeout(() => item.classList.add('placeholder'), 1);
 
         if (!e.dataTransfer) throw Error();
         e.dataTransfer.effectAllowed = 'copy';
         const clone = item.cloneNode(true) as HTMLElement;
-        clone.style.height = `auto`; // 気持ちわるい
-        clone.style.width = `auto`; // 気持ちわるい
-        clone.style.gridRowStart = '2';
-        clone.style.gridColumnStart = '2';
-        clone.style.pointerEvents = 'none';
+        clone.classList.add('ghost');
 
-        const timetable = sel('#timetable');
-        if (!timetable) throw Error();
+        const timetable = sel('#timetable')!;
         app.clone = timetable.appendChild(clone);
     });
     item.addEventListener('dragend', (e) => {
-        item.classList.remove('dragged');
+        item.classList.remove('placeholder');
     });
 });
 
 selAll('.timetable_placeholder').forEach((item) => {
+    if (!(item instanceof HTMLElement)) throw Error();
     item.addEventListener('dragover', (e) => {
         e.preventDefault();
-        const eAsDrag = e as DragEvent;
-        if (!eAsDrag.dataTransfer) throw Error();
-        eAsDrag.dataTransfer.dropEffect = 'copy';
+        if (!e.dataTransfer) throw Error();
+        e.dataTransfer.dropEffect = 'copy';
     });
     item.addEventListener('dragenter', (e) => {
-        if (!(item instanceof HTMLElement)) throw Error();
         app.clone.style.gridRowStart = item.style.gridRowStart;
         app.clone.style.gridColumnStart = item.style.gridColumnStart;
     });
     item.addEventListener('drop', (e) => {
         e.preventDefault();
-        app.clone.style.pointerEvents = 'auto';
+        app.clone.classList.remove('ghost');
     });
 });

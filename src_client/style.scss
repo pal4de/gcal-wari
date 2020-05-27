@@ -13,19 +13,23 @@ body {
     justify-content: center;
 }
 
-.timetable {
+@mixin eventCardContainer {
     display: grid;
     margin-right: 17px;
     overflow-x: auto;
     overflow-y: hidden;
     grid-auto-columns: $cell-size;
     grid-auto-rows: $cell-size;
-    grid-template-rows: 45px;
     gap: 5px;
     &:hover {
         overflow-y: scroll;
         margin-right: 0;
     }
+}
+
+.timetable {
+    @include eventCardContainer;
+    grid-template-rows: 45px;
 
     @mixin timetable_cell {
         display: flex;
@@ -73,22 +77,13 @@ body {
     }
 }
 
-.eventList { // timetableと同じようにgridにしたい
-    overflow-x: auto;
-    overflow-y: hidden;
-    margin-right: 17px;
-    padding-bottom: 20px;
-    &:hover {
-        overflow-y: scroll;
-        margin-right: 0;
-    }
+.eventList {
+    @include eventCardContainer;
+    padding: 10px;
 }
 
 .eventCard {
     --shadow-alpha: 0.0;
-    box-sizing: border-box;
-    width: $cell-size;
-    height: $cell-size;
     padding: 5px;
     font-size: 75%;
     font-weight: bold;
@@ -105,18 +100,14 @@ body {
         color: $color-light;
         box-shadow: none;
         border-style: dashed;
+        transition: 0s;
     }
     &.ghost {
-        grid-row-start: 2;
-        grid-column-start: 2;
         pointer-events: none;
     }
 
-    .eventList & {
-        margin: 20px 15px 0;
-    }
     .timetable & {
-        grid-row-end: span 2;
-        grid-column-end: span 1;
+        grid-row-start: 2;
+        grid-column-start: 2;
     }
 }

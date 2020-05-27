@@ -8,7 +8,9 @@
     "open-clasp": "echo '' | clasp open --webapp",
     "open-static": "wslview https://script.google.com/macros/s/AKfycbwnoXDqIoCPU17gIdWi1lBvGo5HPPy7NnIhoL6IBj4/exec",
     "open": "npm run open-static",
-    "build": "run-p build:* && npm run push",
+    "test": "run-s push open",
+    
+    "build": "npm-run-all -p build:* -s push",
     "build:server": "tsc -p src_server",
     "build:client": "run-p build:client:*",
     "build:client:js": "run-s build:client:js:*",
@@ -18,6 +20,7 @@
     "build:client:js:js-html": "cat dest/client.js | sed -e '1 i <script>' -e '$ a </script>' > app/script.js.html",
     "build:client:css:sass-css": "node-sass src_client/style.scss dest/style.css",
     "build:client:css:css-html": "cat dest/style.css | sed -e '1 i <style>' -e '$ a </style>' > app/style.css.html",
+    
     "watch": "run-p watch:**",
     "watch:server": "chokidar src_server/server.ts -c 'npm run build:server'",
     "watch:client:js": "chokidar src_client/client.ts -c 'npm run build:client:js'",
