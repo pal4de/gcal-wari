@@ -8,7 +8,7 @@
     "open-clasp": "echo '' | clasp open --webapp",
     "open-static": "wslview https://script.google.com/macros/s/AKfycbwnoXDqIoCPU17gIdWi1lBvGo5HPPy7NnIhoL6IBj4/exec",
     "open": "npm run open-static",
-    "test": "run-s push open",
+    "test": "clasp push && clasp run",
     
     "build": "npm-run-all -p build:* -s push",
     "build:server": "tsc -p src_server",

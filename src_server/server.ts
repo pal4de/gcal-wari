@@ -133,8 +133,75 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
   return out;
 };
 
-const calendarTest = () => {
-  const options = getTable('Options');
-  return JSON.stringify(options);
-  // const calendar = CalendarApp.getCalendarsByName('')
+interface Options {
+  termStart: Date,
+  termEnd: Date,
+  calendarName: string,
 }
+const getOptions = (): Options => {
+  const optionsRaw = getTable('Options');
+  const options = {} as Options;
+  for (const row of optionsRaw) {
+    const key = row[0];
+    const value = row[1];
+    switch (key) {
+      case 'Term Start':
+        options.termStart = value;
+        break;
+      case 'Term End':
+        options.termEnd = value;
+        break;
+      case 'Calendar Name':
+        options.calendarName = value;
+        break;
+      default:
+        console.error(`Unknown Option  "${key}": ${value}`);
+        break;
+    }
+  }
+  return options;
+}
+const calendarTest = () => {
+  type CalendarEventSeries = GoogleAppsScript.Calendar.CalendarEventSeries;
+  const options = getOptions();
+  const calendarList = CalendarApp.getCalendarsByName(options.calendarName);
+  if (calendarList.length !== 1) {
+    // error
+  }
+  const calendar = calendarList[0];
+  const eventList = calendar.getEvents(options.termStart, options.termEnd);
+  const eventSeriesList: {[K: string]: CalendarEventSeries} = {};
+  for (const event of eventList) {
+    const eventSeries = event.getEventSeries();
+    const eventSeriesId = eventSeries.getId();
+    if (eventSeriesId in eventSeriesList) break;
+    eventSeriesList[eventSeriesId] = eventSeries;
+    // console.log(`${eventSeriesId}: ${eventSeries.getTitle()}`);
+  }
+  return JSON.stringify(eventSeriesList);
+}
+
+/*
+
+interface Response {
+  succeeded: boolean,
+  message: string | null
+}
+
+const Timetable_addEvent = (eventName: string, row: number, column: number) => {
+};
+const Timetable_removeEvent = (eventName: string) => {
+};
+const Timetable_moveEvent = (eventName: string, row: number, column: number) => {
+};
+
+const Event_newEvent = (eventName: string) => {
+};
+const Event_deleteEvent = (eventName: string) => {
+};
+const Event_changeEventName = (eventName: string) => {
+};
+const Event_changeEventLength = (eventName: string) => {
+};
+
+*/
