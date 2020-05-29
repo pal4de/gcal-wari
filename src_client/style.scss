@@ -1,7 +1,7 @@
 $color-text: hsl(0, 0%, 33%);
 $color-backround: hsl(0, 0%, 100%);
 $color-light: hsl(0, 0%, 90%);
-$cell-size: 75px;
+$cell-size: 80px;
 
 body {
     display: flex;
@@ -20,7 +20,6 @@ body {
     overflow-y: hidden;
     grid-auto-columns: $cell-size;
     grid-auto-rows: $cell-size;
-    gap: 5px;
     &:hover {
         overflow-y: scroll;
         margin-right: 0;
@@ -59,7 +58,8 @@ body {
             border: none;
             text-align: center;
             cursor: text;
-            &::-webkit-calendar-picker-indicator {
+            &::-webkit-calendar-picker-indicator,
+            &::-webkit-clear-button {
                 display: none;
             }
         }
@@ -85,6 +85,7 @@ body {
 .card {
     --shadow-alpha: 0.0;
     padding: 5px;
+    margin: 5px;
     font-size: 75%;
     font-weight: bold;
     background-color: hsl(0, 0%, 100%);
@@ -102,7 +103,10 @@ body {
         border-style: dashed;
         transition: 0s;
     }
-    &.ghost {
+    &#dragged {
+        opacity: 0.5;
+    }
+    &#ghost {
         pointer-events: none;
     }
 

@@ -127,11 +127,14 @@ const app = (): string => {
   return content;
 };
 
-const doGet = (e: GoogleAppsScript.Events.DoGet): GoogleAppsScript.HTML.HtmlOutput => {
+const doGet = (e: GoogleAppsScript.Events.DoGet) => {
   const out = HtmlService.createTemplateFromFile('index').evaluate();
   out.setTitle('Gcal-wari: Timetable on Google Calendar');
   return out;
 };
-// const doPost = (e: GoogleAppsScript.Events.DoPost): GoogleAppsScript.HTML.HtmlOutput => {
-//   return
-// }
+
+const calendarTest = () => {
+  const options = getTable('Options');
+  return JSON.stringify(options);
+  // const calendar = CalendarApp.getCalendarsByName('')
+}

@@ -1,59 +1,139 @@
-type AppData = {
-    clone: HTMLElement | null,
-};
+console.clear();
 
-function triggerEvent(element: Node, event: string) {
+const triggerEvent = (element: Node, event: string): boolean => {
     var evt = document.createEvent("HTMLEvents");
     evt.initEvent(event, true, true);
     return element.dispatchEvent(evt);
 }
+const cloneNode = <T extends Node>(node: T, deep: boolean = true): T => {
+    return node.cloneNode(deep) as T;
+}
 const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
-const app: AppData = {
-    clone: null
-};
 
-const registerCardEvents = (item: HTMLElement): void => {
-    item.addEventListener('dragstart', (e) => {
-        setTimeout(() => item.classList.add('placeholder'), 1);
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbzgSgZiLeJXezJZjdPRe41r3i2WTl5Zgy8Du568k_Ya7IM4xrk/exec';
 
-        if (!e.dataTransfer) throw Error();
-        e.dataTransfer.effectAllowed = 'copy';
+class Card {
+    static getGhost(): HTMLElement {
+        const card = sel('#ghost');
+        if (!(card instanceof HTMLElement)) throw Error();
+        return card;
+    }
+    static getDragged(): HTMLElement {
+        const card = sel('#dragged');
+        if (!(card instanceof HTMLElement)) throw Error();
+        return card;
+    }
+    static setEvent(card: HTMLElement): void {
+        card.addEventListener('dragstart', (e) => {
+            if (!e.dataTransfer) throw Error();
+            e.dataTransfer.effectAllowed = 'copyMove';
+            card.id = 'dragged';
+    
+            const ghost = cloneNode(card);
+            ghost.id = 'ghost';
+            sel('#timetable')!.appendChild(ghost);
+        });
+        
+        card.addEventListener('dragend', (e) => {
+            const ghost = Card.getGhost();
+            const card = Card.getDragged();
+            card.style.gridRowStart = ghost.style.gridRowStart;
+            card.style.gridColumnStart = ghost.style.gridColumnStart;
+            card.id = '';
+            Card.getGhost().remove();
+        });
+    };
+}
 
-        const clone = item.cloneNode(true) as HTMLElement;
-        clone.classList.add('ghost');
-        registerCardEvents(clone);
+selAll('.card').forEach((card) => {
+    if (!(card instanceof HTMLElement)) throw Error();
 
-        const timetable = sel('#timetable')!;
-        app.clone = timetable.appendChild(clone);
+    const len = Number(card.dataset.len);
+    card.style.gridRowEnd = `span ${len}`;
+    
+    Card.setEvent(card);
+});
+selAll('.eventList .card').forEach((card) => {
+    if (!(card instanceof HTMLElement)) throw Error();
+
+    card.addEventListener('dragstart', (e) => {
+        setTimeout(() => {
+            card.classList.add('placeholder')
+            card.id = '';
+        }, 1);
+
+        const clone = cloneNode(card);
+        Card.setEvent(clone);
+        clone.id = 'dragged';
+        sel('#timetable')!.appendChild(clone);
     });
-    item.addEventListener('dragend', (e) => {
-        item.classList.remove('placeholder');
+    card.addEventListener('dragend', (e) => {
+        card.classList.remove('placeholder');
     });
-};
-selAll('.card').forEach((item) => {
-    if (!(item instanceof HTMLElement)) throw Error();
-    const len = Number(item.dataset.len);
-    item.style.gridRowEnd = `span ${len}`;
-
-    registerCardEvents(item);
 });
 
-selAll('.timetable_placeholder').forEach((item) => {
-    if (!(item instanceof HTMLElement)) throw Error();
-    item.addEventListener('dragover', (e) => {
+selAll('.timetable_placeholder').forEach((placeholder) => {
+    if (!(placeholder instanceof HTMLElement)) throw Error();
+    placeholder.addEventListener('dragover', (e) => {
+        e.stopPropagation();
         e.preventDefault();
         if (!e.dataTransfer) throw Error();
         e.dataTransfer.dropEffect = 'copy';
     });
-    item.addEventListener('dragenter', (e) => {
-        if (!app.clone) throw Error();
-        app.clone.style.gridRowStart = item.style.gridRowStart;
-        app.clone.style.gridColumnStart = item.style.gridColumnStart;
+    placeholder.addEventListener('dragenter', (e) => {
+        const ghost = Card.getGhost();
+        ghost.style.gridRowStart = placeholder.style.gridRowStart;
+        ghost.style.gridColumnStart = placeholder.style.gridColumnStart;
     });
-    item.addEventListener('drop', (e) => {
-        if (!app.clone) throw Error();
+    placeholder.addEventListener('drop', (e) => {
+        e.stopPropagation();
         e.preventDefault();
-        app.clone.classList.remove('ghost');
     });
 });
+
+const body = sel('body')!;
+body.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (!e.dataTransfer) throw Error();
+    e.dataTransfer.dropEffect = 'move';
+});
+body.addEventListener('drop', (e) => {
+    e.preventDefault();
+    Card.getDragged().remove();
+});
+
+type TimetableData = {
+    name: string,
+    column: number,
+    row: number,
+};
+type EventData = {
+    name: string,
+    length: number,
+};
+type TimeData = {
+    start: Date,
+    End: Date,
+};
+
+const getTimetableData = (): TimetableData[] => {
+    const result: TimetableData[] = [];
+    selAll('#timetable .card').forEach((card) => {
+        if (!(card instanceof HTMLElement)) throw Error();
+        const timetableData = {
+            name: '',
+            column: 1,
+            row: 1,
+        };
+        timetableData.name = card.dataset.name!;
+        timetableData.column = Number(card.style.gridColumnStart);
+        timetableData.row = Number(card.style.gridRowStart);
+        result.push(timetableData);
+    });
+    return result;
+};
+const sendTimetableData = () => {
+    const data = getTimetableData();
+    google.script.run.req();
+};
