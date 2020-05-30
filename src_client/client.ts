@@ -11,6 +11,9 @@ const cloneNode = <T extends Node>(node: T, deep: boolean = true): T => {
 const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
 const gas = google.script.run;
+const gast = google.script.run
+    .withSuccessHandler(x => console.log('Success:', x))
+    .withFailureHandler(x => console.log('Failure:', x));
 
 class Card {
     static getGhost(): HTMLElement {

@@ -133,7 +133,7 @@ class EventGalleryModule {
                 class: 'card',
                 draggable: true,
                 data_name: event.name,
-                data_len: 2
+                data_len: event.length
             });
         });
         return wrap('div', list, {class: 'eventList'});
