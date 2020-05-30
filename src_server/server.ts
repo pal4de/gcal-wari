@@ -103,6 +103,37 @@ class Database {
     };
 }
 
+interface Options {
+    termStart: Date;
+    termEnd: Date;
+    calendarName: string;
+}
+class OptionsHolder {
+    constructor(database: Database) {
+        this.options = {} as Options;
+        const optionsRaw = database.getTable('Options');
+        for (const row of optionsRaw) {
+            const key = row[0];
+            const value = row[1];
+            switch (key) {
+                case 'Term Start':
+                    this.options.termStart = value;
+                    break;
+                case 'Term End':
+                    this.options.termEnd = value;
+                    break;
+                case 'Calendar Name':
+                    this.options.calendarName = value;
+                    break;
+                default:
+                    console.error(`Unknown Option  "${key}": ${value}`);
+                    break;
+            }
+        }
+    }
+    options: Options;
+}
+
 interface EventData {
     name: string;
     length: number;
@@ -209,35 +240,4 @@ class TimetableModule {
     
         return wrap('div', timetableHtml, {id: 'timetable', class: 'timetable'});
     }
-}
-
-interface Options {
-    termStart: Date;
-    termEnd: Date;
-    calendarName: string;
-}
-class OptionsHolder {
-    constructor(database: Database) {
-        this.options = {} as Options;
-        const optionsRaw = database.getTable('Options');
-        for (const row of optionsRaw) {
-            const key = row[0];
-            const value = row[1];
-            switch (key) {
-                case 'Term Start':
-                    this.options.termStart = value;
-                    break;
-                case 'Term End':
-                    this.options.termEnd = value;
-                    break;
-                case 'Calendar Name':
-                    this.options.calendarName = value;
-                    break;
-                default:
-                    console.error(`Unknown Option  "${key}": ${value}`);
-                    break;
-            }
-        }
-    }
-    options: Options;
 }
