@@ -38,6 +38,8 @@ const wrap = (
 const test = () => {
 }
 
+type Table = any[][];
+type SheetName = 'Timetable' | 'Events' | 'Options';
 class Database {
     constructor() {
         // バージョン情報を残しておきたい...
@@ -55,11 +57,14 @@ class Database {
     }
     database: GoogleAppsScript.Spreadsheet.Spreadsheet;
 
-    getTable(name: string) {
-        const databaseSheet = this.database.getSheetByName(name);
-        if (!databaseSheet) throw Error(`Sheet "${name}" doesn't exist.`);
-        
-        const table = databaseSheet.getDataRange().getValues();
+    getSheet(name: SheetName): GoogleAppsScript.Spreadsheet.Sheet {
+        const sheet = this.database.getSheetByName(name);
+        if (!sheet) throw Error(`Sheet "${name}" doesn't exist.`);
+        return sheet;
+    }
+    getTable(name: SheetName): Table {
+        const sheet = this.getSheet(name);
+        const table = sheet.getDataRange().getValues();
         return table;
     };
     

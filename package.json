@@ -22,9 +22,9 @@
     "build:client:css:css-html": "cat dest/style.css | sed -e '1 i <style>' -e '$ a </style>' > app/style.css.html",
     
     "watch": "run-p watch:**",
-    "watch:server": "chokidar src_server/server.ts -c 'npm run build:server'",
-    "watch:client:js": "chokidar src_client/client.ts -c 'npm run build:client:js'",
-    "watch:client:css": "chokidar src_client/style.scss -c 'npm run build:client:css'",
+    "watch:server": "chokidar src_server/*.ts -c 'npm run build:server'",
+    "watch:client:js": "chokidar src_client/*.ts -c 'npm run build:client:js'",
+    "watch:client:css": "chokidar src_client/*.scss -c 'npm run build:client:css'",
     "watch:client:html": "chokidar src_client/index.html -c 'npm run build:client:html'"
   },
   "author": "",
