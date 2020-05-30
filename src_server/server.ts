@@ -13,8 +13,8 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     const eventListRaw = database.getTable('Events');
     const eventList = Database.tableToList<EventData>(eventListRaw);
 
-    template.eventGallery = new EventGalleryModule(eventList, database);
-    template.timetable = new TimetableModule(eventList, database);
+    template.eventGallery = new EventGalleryModule(database, eventList);
+    template.timetable = new TimetableModule(database, eventList);
 
     const response = template.evaluate();
     response.setTitle('Gcal-wari: Timetable on Google Calendar');
@@ -139,7 +139,7 @@ interface EventData {
     length: number;
 }
 class EventGalleryModule {
-    constructor(eventList: EventData[], database: Database) {
+    constructor(database: Database, eventList: EventData[]) {
         this.database = database;
         this.eventList = eventList;
     }
@@ -172,7 +172,7 @@ interface TimetableData {
     sat: string[],
 }
 class TimetableModule {
-    constructor(eventList: EventData[], database: Database) {
+    constructor(database: Database, eventList: EventData[]) {
         this.database = database;
         this.eventList = eventList;
     }
