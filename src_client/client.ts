@@ -10,8 +10,7 @@ const cloneNode = <T extends Node>(node: T, deep: boolean = true): T => {
 }
 const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
-
-const ENDPOINT = 'https://script.google.com/macros/s/AKfycbzgSgZiLeJXezJZjdPRe41r3i2WTl5Zgy8Du568k_Ya7IM4xrk/exec';
+const gas = google.script.run;
 
 class Card {
     static getGhost(): HTMLElement {
