@@ -38,11 +38,6 @@ class Card {
         });
         
         card.addEventListener('dragend', (e) => {
-            const ghost = Card.getGhost();
-            const card = Card.getDragged();
-            card.style.gridRowStart = ghost.style.gridRowStart;
-            card.style.gridColumnStart = ghost.style.gridColumnStart;
-            card.id = '';
             Card.getGhost().remove();
         });
     };
@@ -91,6 +86,11 @@ selAll('.timetable_placeholder').forEach((placeholder) => {
     placeholder.addEventListener('drop', (e) => {
         e.stopPropagation();
         e.preventDefault();
+        const ghost = Card.getGhost();
+        const card = Card.getDragged();
+        card.style.gridRowStart = ghost.style.gridRowStart;
+        card.style.gridColumnStart = ghost.style.gridColumnStart;
+        card.id = '';
     });
 });
 

@@ -45,8 +45,6 @@ const wrap = (
     }
     return result;
 };
-const test = () => {
-}
 
 type Table = any[][];
 type SheetName = 'Timetable' | 'Events' | 'Options';
@@ -144,8 +142,8 @@ class Option {
         for (const row of optionsRaw) {
             const label = row[0];
             const value = row[1];
-            const keyList = [...this.labelMap.keys()];
-            const labelList = [...this.labelMap.values()];
+            const keyList = Array.from(this.labelMap.keys());
+            const labelList = Array.from(this.labelMap.values());
             
             if (!(label in keyList)) console.warn(`Unknown option "${label}"`);
             this.option[keyList[labelList.indexOf(label)!]] = value;
