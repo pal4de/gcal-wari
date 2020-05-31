@@ -10,9 +10,11 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     template.script = getContent('script.js');
 
     const database = new Database();
-    const eventListRaw = database.getTable('Events');
-    const eventList = Database.tableToList<EventData>(eventListRaw);
+    const eventDataListRaw = database.getTable('Events');
+    const eventDataList = Database.tableToList<EventData>(eventDataListRaw);
+    const eventList = eventDataList.map(eventData => new Event(eventData));
 
+    // template.option = '';
     template.eventGallery = new EventGalleryModule(database, eventList);
     template.timetable = new TimetableModule(database, eventList);
 
@@ -22,10 +24,11 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
 };
 
 // Wrap content with HTML tag
+type HtmlAttr = {[key: string]: string | number | boolean};
 const wrap = (
     tag: string,
     content: string,
-    attr?: {[key: string]: string | number | boolean},
+    attr?: HtmlAttr,
 ): string => {
     let attrStr = '';
     if (attr) {
@@ -83,6 +86,41 @@ class Database {
     };
 }
 
+interface EventData {
+    name: string;
+    length: number;
+}
+class Event implements EventData {
+    constructor(eventData: EventData) {
+        this.name = eventData.name;
+        this.length = eventData.length;
+    }
+    name: string;
+    length: number;
+
+    html(attr: HtmlAttr = {}): string {
+        attr = {
+            ...attr,
+            ...{
+                class: 'card',
+                draggable: true,
+                data_name: this.name,
+                data_len: this.length
+            }
+        };
+        return wrap('div', this.name, attr);
+    }
+    toString(): string {
+        return this.html();
+    }
+
+    static find(list: Event[], name: string): Event {
+        const event = list.find(event => event.name === name);
+        if (!event) throw Error();
+        return event;
+    }
+}
+
 interface Options {
     termStart: Date;
     termEnd: Date;
@@ -114,28 +152,16 @@ class OptionsHolder {
     options: Options;
 }
 
-interface EventData {
-    name: string;
-    length: number;
-}
 class EventGalleryModule {
-    constructor(database: Database, eventList: EventData[]) {
+    constructor(database: Database, eventList: Event[]) {
         this.database = database;
         this.eventList = eventList;
     }
     database: Database;
-    eventList: EventData[];
+    eventList: Event[];
 
     toString(): string {
-        let list = '';
-        this.eventList.forEach((event) => {
-            list += wrap('div', event.name, {
-                class: 'card',
-                draggable: true,
-                data_name: event.name,
-                data_len: event.length
-            });
-        });
+        let list = this.eventList.join('');
         return wrap('div', list, {class: 'eventList'});
     }
 }
@@ -152,12 +178,12 @@ interface TimetableData {
     sat: string[],
 }
 class TimetableModule {
-    constructor(database: Database, eventList: EventData[]) {
+    constructor(database: Database, eventList: Event[]) {
         this.database = database;
         this.eventList = eventList;
     }
     database: Database;
-    eventList: EventData[];
+    eventList: Event[];
 
     toString(): string {
         let timetableHtml = '';
@@ -185,15 +211,6 @@ class TimetableModule {
         const dataRaw = this.database.getTable('Timetable');
         const data = parseRawData(dataRaw);
     
-        // Day
-        const dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        dayList.forEach((day, index) => {
-            timetableHtml += wrap('div', day, {
-                class: 'timetable_day',
-                style: `grid-area: 1/${index + 2};`
-            });
-        });
-    
         // Time
         data.start.forEach((_, index) => {
             const zeroPad = (n: number) => String(n).padStart(2, '0');
@@ -215,9 +232,26 @@ class TimetableModule {
             });
         });
     
+        // Day
+        const dayList: (keyof Omit<TimetableData, 'start' | 'end'>)[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        dayList.forEach((day, index) => {
+            timetableHtml += wrap('div', day, {
+                class: 'timetable_day',
+                style: `grid-area: 1/${index + 2};`
+            });
+        });
+    
         // Event
-    
-    
+        dayList.forEach((key, column) => {
+            data[key].forEach((eventName, row) => {
+                if (!eventName) return;
+                const event = Event.find(this.eventList, eventName);
+                timetableHtml += event.html({
+                    style: `grid-row-start: ${row+2}; grid-column-start: ${column+2};`
+                });
+            });
+        });
+
         return wrap('div', timetableHtml, {id: 'timetable', class: 'timetable'});
     }
 }
