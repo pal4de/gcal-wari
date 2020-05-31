@@ -14,9 +14,9 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     const eventDataList = Database.tableToList<EventData>(eventDataListRaw);
     const eventList = eventDataList.map(eventData => new Event(eventData));
 
-    // template.option = '';
-    template.eventGallery = new EventGalleryModule(database, eventList);
-    template.timetable = new TimetableModule(database, eventList);
+    template.option = new Option(database);
+    template.eventGallery = new EventGallery(database, eventList);
+    template.timetable = new Timetable(database, eventList);
 
     const response = template.evaluate();
     response.setTitle('Gcal-wari: Timetable on Google Calendar');
@@ -25,18 +25,25 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
 
 // Wrap content with HTML tag
 type HtmlAttr = {[key: string]: string | number | boolean};
+const zeroPad = (n: number, length: number = 2): string => String(n).padStart(length, '0');
 const wrap = (
     tag: string,
     content: string,
-    attr?: HtmlAttr,
+    attr: HtmlAttr = {},
+    isVoid: boolean = false,
 ): string => {
+    let result = '';
     let attrStr = '';
-    if (attr) {
-        for (const a in attr) {
-            attrStr += ` ${a.replace('_', '-')}="${attr[a]}"`;
-        }
+    for (const a in attr) {
+        attrStr += ` ${a.replace('_', '-')}="${attr[a]}"`;
     }
-    return `<${tag}${attrStr}>${content}</${tag}>`;
+
+    if (isVoid) {
+        result = `<${tag}${attrStr} />`;
+    } else {
+        result = `<${tag}${attrStr}>${content}</${tag}>`;
+    }
+    return result;
 };
 const test = () => {
 }
@@ -101,12 +108,10 @@ class Event implements EventData {
     html(attr: HtmlAttr = {}): string {
         attr = {
             ...attr,
-            ...{
-                class: 'card',
-                draggable: true,
-                data_name: this.name,
-                data_len: this.length
-            }
+            class: 'card',
+            draggable: true,
+            data_name: this.name,
+            data_len: this.length
         };
         return wrap('div', this.name, attr);
     }
@@ -121,38 +126,65 @@ class Event implements EventData {
     }
 }
 
-interface Options {
-    termStart: Date;
-    termEnd: Date;
+interface OptionData {
     calendarName: string;
+    periodStart: Date;
+    periodEnd: Date;
 }
-class OptionsHolder {
+class Option {
     constructor(database: Database) {
-        this.options = {} as Options;
+        this.option = {} as OptionData;
+        this.labelMap = new Map<keyof OptionData, string>([
+            ['calendarName', 'Calendar Name'],
+            ['periodStart', 'Period Starts'],
+            ['periodEnd', 'Period Ends'],
+        ]);
+
         const optionsRaw = database.getTable('Options');
         for (const row of optionsRaw) {
-            const key = row[0];
+            const label = row[0];
             const value = row[1];
-            switch (key) {
-                case 'Term Start':
-                    this.options.termStart = value;
-                    break;
-                case 'Term End':
-                    this.options.termEnd = value;
-                    break;
-                case 'Calendar Name':
-                    this.options.calendarName = value;
-                    break;
-                default:
-                    console.error(`Unknown Option  "${key}": ${value}`);
-                    break;
-            }
+            const keyList = [...this.labelMap.keys()];
+            const labelList = [...this.labelMap.values()];
+            
+            if (!(label in keyList)) console.warn(`Unknown option "${label}"`);
+            this.option[keyList[labelList.indexOf(label)!]] = value;
         }
     }
-    options: Options;
+    option: OptionData;
+    private labelMap: Map<keyof OptionData, string>;
+
+    toString(): string {
+        let result = '';
+        this.labelMap.forEach((label, key) => {
+            let input = '';
+            const value = this.option[key];
+            if (value instanceof Date) {
+                const year = value.getFullYear();
+                const month = zeroPad(value.getMonth());
+                const date = zeroPad(value.getDate());
+                input += wrap('input', '', {
+                    name: key,
+                    type: 'date',
+                    value: `${year}-${month}-${date}`
+                }, true);
+            } else {
+                input += wrap('input', '', {
+                    name: key,
+                    value: value
+                }, true);
+            }
+            result += wrap(
+                'label',
+                wrap('span', label) + input
+            );
+        });
+        result = wrap('div', result, {class: 'option'})
+        return result;
+    }
 }
 
-class EventGalleryModule {
+class EventGallery {
     constructor(database: Database, eventList: Event[]) {
         this.database = database;
         this.eventList = eventList;
@@ -177,7 +209,7 @@ interface TimetableData {
     fri: string[],
     sat: string[],
 }
-class TimetableModule {
+class Timetable {
     constructor(database: Database, eventList: Event[]) {
         this.database = database;
         this.eventList = eventList;
@@ -211,9 +243,15 @@ class TimetableModule {
         const dataRaw = this.database.getTable('Timetable');
         const data = parseRawData(dataRaw);
     
+        // Placeholder
+        [...Array(data.start.length)].forEach((_, col) => {
+            [...Array(7)].forEach((_, row) => {
+                timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col + 2}/${row + 2};`});
+            });
+        });
+    
         // Time
         data.start.forEach((_, index) => {
-            const zeroPad = (n: number) => String(n).padStart(2, '0');
             const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
     
             let html = '';
@@ -223,13 +261,6 @@ class TimetableModule {
             html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
             html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
             timetableHtml += html;
-        });
-    
-        // Placeholder
-        [...Array(data.start.length)].forEach((_, col) => {
-            [...Array(7)].forEach((_, row) => {
-                timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col + 2}/${row + 2};`});
-            });
         });
     
         // Day
