@@ -34,7 +34,7 @@ const Event_deleteEvent = (eventName: string): json => {
         const sheet = database.getSheet('Events');
 
         const lastRowNumber = sheet.getLastRow();
-        const eventNameList = sheet.getRange(2, 1, lastRowNumber, 1).getValues().flat();
+        const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
         const index = eventNameList.indexOf(eventName);
         if (index === -1) throw Error(`Event "${eventName}" has not found`);
         sheet.deleteRow(2+index);
@@ -57,7 +57,7 @@ const Event_changeEventName = (oldName: string, newName: string): json => {
         const sheet = database.getSheet('Events');
         
         const lastRowNumber = sheet.getLastRow();
-        const eventNameList = sheet.getRange(2, 1, lastRowNumber, 1).getValues().flat();
+        const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
         const index = eventNameList.indexOf(oldName);
         if (index === -1) throw Error(`Event "${oldName}" has not found`);
 
@@ -81,7 +81,7 @@ const Event_changeEventLength = (eventName: string, newLength: number): json => 
         const sheet = database.getSheet('Events');
         
         const lastRowNumber = sheet.getLastRow();
-        const eventNameList = sheet.getRange(2, 1, lastRowNumber, 1).getValues().flat();
+        const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
         const index = eventNameList.indexOf(eventName);
         if (index === -1) throw Error(`Event "${eventName}" has not found`);
 
@@ -105,7 +105,7 @@ const Event_moveEvent = (eventName: string, newPosition: number): json => {
         const sheet = database.getSheet('Events');
         
         const lastRowNumber = sheet.getLastRow();
-        const eventNameList = sheet.getRange(2, 1, lastRowNumber, 1).getValues().flat();
+        const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
         const index = eventNameList.indexOf(eventName);
         if (index === -1) throw Error(`Event "${eventName}" has not found`);
 
@@ -168,3 +168,28 @@ const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, 
         return JSON.stringify(responce);
     }
 };
+
+const Option_update = (name: string, value: string): json => { // まだ
+    const responce: Response = {
+        succeeded: false,
+        message: null,
+    };
+    try {
+        const database = new Database();
+        const sheet = database.getSheet('Options');
+        const option = new Option(database);
+        
+        const lastRowNumber = sheet.getLastRow();
+        const optionNameList = sheet.getRange(1, 1, lastRowNumber, 1).getValues().flat();
+        const index = optionNameList.indexOf(name);
+        if (index === -1) throw Error(`Option "${name}" has not found`);
+
+        sheet.getRange(index+2, 1).setValue(name);
+        
+        responce.succeeded = true;
+    } catch (e) {
+        responce.message = String(e);
+    } finally {
+        return JSON.stringify(responce);
+    }
+}

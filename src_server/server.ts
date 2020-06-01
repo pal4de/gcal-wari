@@ -132,29 +132,25 @@ interface OptionData {
 class Option {
     constructor(database: Database) {
         this.option = {} as OptionData;
-        this.labelMap = new Map<keyof OptionData, string>([
+
+        const optionsRaw = database.getTable('Options');
+        for (const row of optionsRaw) {
+            const key = row[0] as keyof OptionData;
+            const value = row[1];
+            console.log(key, value, this.option);
+            this.option[key] = value;
+        }
+    }
+    option: OptionData;
+
+    toString(): string {
+        let result = '';
+        const labelMap = new Map<keyof OptionData, string>([
             ['calendarName', 'Calendar Name'],
             ['periodStart', 'Period Starts'],
             ['periodEnd', 'Period Ends'],
         ]);
-
-        const optionsRaw = database.getTable('Options');
-        for (const row of optionsRaw) {
-            const label = row[0];
-            const value = row[1];
-            const keyList = Array.from(this.labelMap.keys());
-            const labelList = Array.from(this.labelMap.values());
-            
-            if (!(label in keyList)) console.warn(`Unknown option "${label}"`);
-            this.option[keyList[labelList.indexOf(label)!]] = value;
-        }
-    }
-    option: OptionData;
-    private labelMap: Map<keyof OptionData, string>;
-
-    toString(): string {
-        let result = '';
-        this.labelMap.forEach((label, key) => {
+        labelMap.forEach((label, key) => {
             let input = '';
             const value = this.option[key];
             if (value instanceof Date) {

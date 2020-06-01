@@ -40,6 +40,12 @@ class Card {
         card.addEventListener('dragend', (e) => {
             Card.getGhost().remove();
         });
+
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            Card.getDragged().id = '';
+        });
     };
 }
 
@@ -86,11 +92,19 @@ selAll('.timetable_placeholder').forEach((placeholder) => {
     placeholder.addEventListener('drop', (e) => {
         e.stopPropagation();
         e.preventDefault();
+
         const ghost = Card.getGhost();
         const card = Card.getDragged();
         card.style.gridRowStart = ghost.style.gridRowStart;
         card.style.gridColumnStart = ghost.style.gridColumnStart;
         card.id = '';
+    });
+});
+
+selAll('.option input').forEach((input) => {
+    if (!(input instanceof HTMLInputElement)) throw Error();
+    input.addEventListener('change', (e) => {
+        const result = gast.Option_update(input.name, input.value);
     });
 });
 

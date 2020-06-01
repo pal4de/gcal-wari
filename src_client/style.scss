@@ -1,7 +1,7 @@
 $color-text: hsl(0, 0%, 33%);
 $color-backround: hsl(0, 0%, 100%);
 $color-light: hsl(0, 0%, 90%);
-$cell-size: 85px;
+$cell-size: 100px;
 $scrollbar-width: 17px;
 
 body {
@@ -10,6 +10,7 @@ body {
     max-height: 100vh;
     color: $color-text;
     font-family: 'Noto Sans JP', sans-serif;
+    font-weight: bold;
     background-color: $color-backround;
     justify-content: center;
 }
@@ -30,6 +31,13 @@ body {
     grid-auto-rows: $cell-size;
 }
 
+input {
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: text;
+}
+
 .timetable {
     @include cardContainer;
     grid-template-rows: 45px;
@@ -37,7 +45,6 @@ body {
     @mixin timetable_cell {
         display: flex;
         padding: 5px;
-        font-weight: bold;
         flex-direction: column;
         align-items: center;
         justify-content: center;
@@ -55,9 +62,6 @@ body {
         
         input {
             width: 100%;
-            color: inherit;
-            font-weight: inherit;
-            font-family: inherit;
             background-color: transparent;
             border: none;
             text-align: center;
@@ -94,20 +98,23 @@ body {
 
 .option {
     margin-right: $scrollbar-width;
+    padding: 0 10px;
+
     label {
         display: inline-block;
         width: 100%;
-        margin-bottom: 10px;
 
         span {
+            color: $color-light;
             font-size: 0.2em;
-            font-weight: 700;
+            font-weight: 500;
         }
+
         input {
             display: block;
             width: 100%;
             height: 1.7em;
-            padding-bottom: 3px;
+            font-size: 0.8em;
             box-sizing: border-box;
             border: none;
             border-bottom: $color-light 2px solid;
@@ -128,7 +135,7 @@ body {
     --shadow-alpha: 0.0;
     padding: 5px;
     margin: 3px;
-    font-size: 75%;
+    font-size: 0.8em;
     font-weight: bold;
     background-color: hsl(0, 0%, 100%);
     border: 2px solid $color-light;
