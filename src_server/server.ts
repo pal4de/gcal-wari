@@ -10,13 +10,13 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     template.script = getContent('script.js');
 
     const database = new Database();
-    const eventDataListRaw = database.getTable('Events');
-    const eventDataList = Database.tableToList<EventData>(eventDataListRaw);
-    const eventList = eventDataList.map(eventData => new Event(eventData));
+    const eventGallery = new EventGallery(database);
+    const option = new Option(database);
+    const timetable = new Timetable(database, eventGallery);
 
-    template.option = new Option(database);
-    template.eventGallery = new EventGallery(database, eventList);
-    template.timetable = new Timetable(database, eventList);
+    template.option = option;
+    template.eventGallery = eventGallery;
+    template.timetable = timetable;
 
     const response = template.evaluate();
     response.setTitle('Gcal-wari: Timetable on Google Calendar');
@@ -75,41 +75,23 @@ class Database {
         const table = sheet.getDataRange().getValues();
         return table;
     };
-    
-    static tableToList<T>(table: ((keyof T)[] | (T[keyof T])[])[]): T[] {
-        const result: T[] = [];
-        const keyList = table.shift() as (keyof T)[];
-        const tableData = table as (T[keyof T])[][];
-        tableData.forEach((row) => {
-            const obj = {} as T;
-            row.forEach((value, index) => {
-                obj[keyList[index]] = value;
-            });
-            result.push(obj);
-        });
-        return result;
-    };
 }
 
-interface EventData {
-    name: string;
-    length: number;
-}
-class Event implements EventData {
-    constructor(eventData: EventData) {
-        this.name = eventData.name;
-        this.length = eventData.length;
+class Event {
+    constructor(name: string, length: number) {
+        this.name = name;
+        this.length = length;
     }
-    name: string;
-    length: number;
+    readonly name: string;
+    readonly length: number;
 
     html(attr: HtmlAttr = {}): string {
         attr = {
-            ...attr,
             class: 'card',
             draggable: true,
             data_name: this.name,
-            data_len: this.length
+            data_len: this.length,
+            ...attr,
         };
         return wrap('div', this.name, attr);
     }
@@ -123,6 +105,28 @@ class Event implements EventData {
         return event;
     }
 }
+class EventGallery {
+    constructor(database: Database) {
+        const tableToList = (table: any[][]): Event[] => {
+            table.shift();
+            const tableData = table as [string, number][];
+            const result = tableData.map((value) => new Event(...value));
+            return result;
+        };
+
+        this.sheet = database.getSheet('Events');
+
+        const eventDataListRaw = database.getTable('Events');
+        this.data = tableToList(eventDataListRaw);
+    }
+    readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    readonly data: Event[];
+
+    toString(): string {
+        let list = this.data.join('');
+        return wrap('div', list, {class: 'eventList'});
+    }
+}
 
 interface OptionData {
     calendarName: string;
@@ -131,6 +135,7 @@ interface OptionData {
 }
 class Option {
     constructor(database: Database) {
+        this.sheet = database.getSheet('Options');
         this.option = {} as OptionData;
 
         const optionsRaw = database.getTable('Options');
@@ -141,7 +146,8 @@ class Option {
             this.option[key] = value;
         }
     }
-    option: OptionData;
+    readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    readonly option: OptionData;
 
     toString(): string {
         let result = '';
@@ -175,20 +181,6 @@ class Option {
     }
 }
 
-class EventGallery {
-    constructor(database: Database, eventList: Event[]) {
-        this.database = database;
-        this.data = eventList;
-    }
-    database: Database;
-    data: Event[];
-
-    toString(): string {
-        let list = this.data.join('');
-        return wrap('div', list, {class: 'eventList'});
-    }
-}
-
 interface TimetableData {
     start: Date[],
     end: Date[],
@@ -201,9 +193,9 @@ interface TimetableData {
     sat: string[],
 }
 class Timetable {
-    constructor(database: Database, eventList: Event[]) {
-        this.database = database;
-        this.eventList = eventList;
+    constructor(database: Database, eventGallery: EventGallery) {
+        this.sheet = database.getSheet('Timetable');
+        this.eventGallery = eventGallery;
     
         const parseRawData = (raw: any[][]): TimetableData => {
             const data: TimetableData = {
@@ -225,12 +217,12 @@ class Timetable {
             }
             return data;
         };
-        const dataRaw = this.database.getTable('Timetable');
+        const dataRaw = database.getTable('Timetable');
         this.data = parseRawData(dataRaw);
     }
-    database: Database;
-    eventList: Event[];
-    data: TimetableData;
+    readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    readonly eventGallery: EventGallery;
+    readonly data: TimetableData;
 
     toString(): string {
         let timetableHtml = '';
@@ -268,7 +260,7 @@ class Timetable {
         dayList.forEach((key, column) => {
             this.data[key].forEach((eventName, row) => {
                 if (!eventName) return;
-                const event = Event.find(this.eventList, eventName);
+                const event = Event.find(this.eventGallery.data, eventName);
                 timetableHtml += event.html({
                     style: `grid-row-start: ${row+2}; grid-column-start: ${column+2};`
                 });
