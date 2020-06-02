@@ -15,6 +15,10 @@ const gast = google.script.run
     .withSuccessHandler(x => console.log(x))
     .withFailureHandler(x => console.log(x));
 
+const toast = (message: string, type: string) => {
+
+};
+
 class Card {
     static getGhost(): HTMLElement {
         const card = sel('#ghost');
@@ -103,8 +107,12 @@ selAll('.timetable_placeholder').forEach((placeholder) => {
 
 selAll('.option input').forEach((input) => {
     if (!(input instanceof HTMLInputElement)) throw Error();
-    input.addEventListener('change', (e) => {
-        const result = gast.Option_update(input.name, input.value);
+    const eventName = input.type !== 'date' ? 'change' : 'blur';
+    input.addEventListener(eventName, (e) => {
+        gas.withSuccessHandler((ret) => {
+            console.log('Option updated:', `"${input.name}": ${input.value}`);
+            // トースト
+        }).Option_update(input.name, input.value);
     });
 });
 

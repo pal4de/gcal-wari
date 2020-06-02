@@ -155,7 +155,7 @@ class Option {
             const value = this.option[key];
             if (value instanceof Date) {
                 const year = value.getFullYear();
-                const month = zeroPad(value.getMonth());
+                const month = zeroPad(value.getMonth()+1);
                 const date = zeroPad(value.getDate());
                 input += wrap('input', '', {
                     name: key,

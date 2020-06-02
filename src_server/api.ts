@@ -69,15 +69,14 @@ const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, 
     const sheet = database.getSheet('Timetable');
 };
 
-const Option_update = (name: string, value: string): void => {
+const Option_update = (name: string, value: any): void => {
     const database = new Database();
     const sheet = database.getSheet('Options');
-    const option = new Option(database);
     
     const lastRowNumber = sheet.getLastRow();
     const optionNameList = sheet.getRange(1, 1, lastRowNumber, 1).getValues().flat();
     const index = optionNameList.indexOf(name);
     if (index === -1) throw Error(`Option "${name}" has not found`);
 
-    sheet.getRange(index+2, 1).setValue(value);
+    sheet.getRange(index+1, 2).setValue(value);
 }
