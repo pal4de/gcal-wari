@@ -168,10 +168,7 @@ class Option {
                     value: value
                 }, true);
             }
-            result += wrap(
-                'label',
-                wrap('span', label) + input
-            );
+            result += wrap('label', wrap('span', label) + input);
         });
         result = wrap('div', result, {class: 'option'})
         return result;
@@ -181,13 +178,13 @@ class Option {
 class EventGallery {
     constructor(database: Database, eventList: Event[]) {
         this.database = database;
-        this.eventList = eventList;
+        this.data = eventList;
     }
     database: Database;
-    eventList: Event[];
+    data: Event[];
 
     toString(): string {
-        let list = this.eventList.join('');
+        let list = this.data.join('');
         return wrap('div', list, {class: 'eventList'});
     }
 }
@@ -207,12 +204,6 @@ class Timetable {
     constructor(database: Database, eventList: Event[]) {
         this.database = database;
         this.eventList = eventList;
-    }
-    database: Database;
-    eventList: Event[];
-
-    toString(): string {
-        let timetableHtml = '';
     
         const parseRawData = (raw: any[][]): TimetableData => {
             const data: TimetableData = {
@@ -235,22 +226,29 @@ class Timetable {
             return data;
         };
         const dataRaw = this.database.getTable('Timetable');
-        const data = parseRawData(dataRaw);
+        this.data = parseRawData(dataRaw);
+    }
+    database: Database;
+    eventList: Event[];
+    data: TimetableData;
+
+    toString(): string {
+        let timetableHtml = '';
     
         // Placeholder
-        [...Array(data.start.length)].forEach((_, col) => {
+        [...Array(this.data.start.length)].forEach((_, col) => {
             [...Array(7)].forEach((_, row) => {
-                timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col + 2}/${row + 2};`});
+                timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col+2}/${row+2};`});
             });
         });
     
         // Time
-        data.start.forEach((_, index) => {
+        this.data.start.forEach((_, index) => {
             const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
     
             let html = '';
-            const start = data.start[index];
-            const end = data.end[index];
+            const start = this.data.start[index];
+            const end = this.data.end[index];
             html += wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
             html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
             html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
@@ -268,7 +266,7 @@ class Timetable {
     
         // Event
         dayList.forEach((key, column) => {
-            data[key].forEach((eventName, row) => {
+            this.data[key].forEach((eventName, row) => {
                 if (!eventName) return;
                 const event = Event.find(this.eventList, eventName);
                 timetableHtml += event.html({

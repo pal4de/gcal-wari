@@ -4,12 +4,22 @@ interface Response {
 }
 type json = string;
 
-const Event_newEvent = (eventName: string, length: number = 1): json => {
+const apiWrapper = (func: (responce: Response) => Response): json => {
     const responce: Response = {
         succeeded: false,
         message: null,
     };
     try {
+        func(responce);
+    } catch (e) {
+        responce.message = String(e);
+    } finally {
+        return JSON.stringify(responce);
+    }
+};
+
+const Event_newEvent = (eventName: string, length: number = 1): json => {
+    return apiWrapper((responce) => {
         if (!eventName) throw Error('Event name is required');
         const database = new Database();
         const sheet = database.getSheet('Events');
@@ -17,18 +27,11 @@ const Event_newEvent = (eventName: string, length: number = 1): json => {
         sheet.appendRow([eventName, length]);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Event_deleteEvent = (eventName: string): json => {
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         if (!eventName) throw Error('Event name is required');
         const database = new Database();
         const sheet = database.getSheet('Events');
@@ -40,18 +43,11 @@ const Event_deleteEvent = (eventName: string): json => {
         sheet.deleteRow(2+index);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Event_changeEventName = (oldName: string, newName: string): json => {
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         if (!oldName) throw Error('Event name is required');
         const database = new Database();
         const sheet = database.getSheet('Events');
@@ -64,18 +60,11 @@ const Event_changeEventName = (oldName: string, newName: string): json => {
         sheet.getRange(index+2, 1).setValue(newName);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Event_changeEventLength = (eventName: string, newLength: number): json => {
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         if (!eventName) throw Error('Event name is required');
         const database = new Database();
         const sheet = database.getSheet('Events');
@@ -88,18 +77,11 @@ const Event_changeEventLength = (eventName: string, newLength: number): json => 
         sheet.getRange(index+2, 2).setValue(newLength);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Event_moveEvent = (eventName: string, newPosition: number): json => {
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         if (!eventName) throw Error('Event name is required');
         const database = new Database();
         const sheet = database.getSheet('Events');
@@ -113,68 +95,40 @@ const Event_moveEvent = (eventName: string, newPosition: number): json => {
         sheet.moveRows(targetRow, 1+newPosition);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 
 const Timetable_addEvent = (row: number, column: number, eventName: string): json => { // まだ
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         const database = new Database();
         const sheet = database.getSheet('Timetable');
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Timetable_removeEvent = (row: number, column: number): json => { // まだ
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         const database = new Database();
         const sheet = database.getSheet('Timetable');
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, newColumn: number): json => { // まだ
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         const database = new Database();
         const sheet = database.getSheet('Timetable');
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 };
 
 const Option_update = (name: string, value: string): json => { // まだ
-    const responce: Response = {
-        succeeded: false,
-        message: null,
-    };
-    try {
+    return apiWrapper((responce) => {
         const database = new Database();
         const sheet = database.getSheet('Options');
         const option = new Option(database);
@@ -187,9 +141,6 @@ const Option_update = (name: string, value: string): json => { // まだ
         sheet.getRange(index+2, 1).setValue(name);
         
         responce.succeeded = true;
-    } catch (e) {
-        responce.message = String(e);
-    } finally {
-        return JSON.stringify(responce);
-    }
+        return responce;
+    });
 }
