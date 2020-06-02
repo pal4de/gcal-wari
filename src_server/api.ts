@@ -30,7 +30,7 @@ const Event_changeEventName = (oldName: string, newName: string): void => {
     const index = eventNameList.indexOf(oldName);
     if (index === -1) throw Error(`Event "${oldName}" has not found`);
 
-    sheet.getRange(index+2, 1).setValue(newName);
+    sheet.getRange(2+index, 1).setValue(newName);
 };
 const Event_changeEventLength = (eventName: string, newLength: number): void => {
     if (!eventName) throw Error('Event name is required');
@@ -42,7 +42,7 @@ const Event_changeEventLength = (eventName: string, newLength: number): void => 
     const index = eventNameList.indexOf(eventName);
     if (index === -1) throw Error(`Event "${eventName}" has not found`);
 
-    sheet.getRange(index+2, 2).setValue(newLength);
+    sheet.getRange(2+index, 2).setValue(newLength);
 };
 const Event_moveEvent = (eventName: string, newPosition: number): void => {
     if (!eventName) throw Error('Event name is required');
@@ -61,19 +61,19 @@ const Event_moveEvent = (eventName: string, newPosition: number): void => {
 const Timetable_addEvent = (row: number, column: number, eventName: string): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
-    sheet.getRange(row+1, column+2).setValue(eventName); //範囲外ならthrowしてほしい
+    sheet.getRange(1+row, 2+column).setValue(eventName); //範囲外ならthrowしてほしい
 };
 const Timetable_removeEvent = (row: number, column: number): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
-    sheet.getRange(row+1, column+2).clear(); //範囲外ならthrowしてほしい
+    sheet.getRange(1+row, 2+column).clear(); //範囲外ならthrowしてほしい
 };
 const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, newColumn: number): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
-    const target = sheet.getRange(newRow+1, newColumn+2); //範囲外ならthrowしてほしい
+    const target = sheet.getRange(1+newRow, 2+newColumn); //範囲外ならthrowしてほしい
     if (!target.getValue) throw Error(`Already an event exsists in (${newRow}, ${newColumn})`);
-    sheet.getRange(oldRow+1, oldColumn+2).moveTo(target);
+    sheet.getRange(1+oldRow, 2+oldColumn).moveTo(target);
 };
 
 const Option_update = (name: string, value: any): void => {
@@ -85,5 +85,5 @@ const Option_update = (name: string, value: any): void => {
     const index = optionNameList.indexOf(name);
     if (index === -1) throw Error(`Option "${name}" has not found`);
 
-    sheet.getRange(index+1, 2).setValue(value);
+    sheet.getRange(1+index, 2).setValue(value);
 }
