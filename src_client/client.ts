@@ -12,8 +12,8 @@ const sel = document.querySelector.bind(document);
 const selAll = document.querySelectorAll.bind(document);
 const gas = google.script.run;
 const gast = google.script.run
-    .withSuccessHandler(x => console.log('Success:', x))
-    .withFailureHandler(x => console.log('Failure:', x));
+    .withSuccessHandler(x => console.log(x))
+    .withFailureHandler(x => console.log(x));
 
 class Card {
     static getGhost(): HTMLElement {
