@@ -1,3 +1,5 @@
+//直接操作するの気持ち悪いのでいずれクラスに閉じ込める
+
 const Event_newEvent = (eventName: string, length: number = 1): void => {
     if (!eventName) throw Error('Event name is required');
     const database = new Database();
@@ -56,17 +58,22 @@ const Event_moveEvent = (eventName: string, newPosition: number): void => {
     sheet.moveRows(targetRow, 1+newPosition);
 };
 
-const Timetable_addEvent = (row: number, column: number, eventName: string): void => { // まだ
+const Timetable_addEvent = (row: number, column: number, eventName: string): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
+    sheet.getRange(row+1, column+2).setValue(eventName); //範囲外ならthrowしてほしい
 };
-const Timetable_removeEvent = (row: number, column: number): void => { // まだ
+const Timetable_removeEvent = (row: number, column: number): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
+    sheet.getRange(row+1, column+2).clear(); //範囲外ならthrowしてほしい
 };
-const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, newColumn: number): void => { // まだ
+const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, newColumn: number): void => {
     const database = new Database();
     const sheet = database.getSheet('Timetable');
+    const target = sheet.getRange(newRow+1, newColumn+2); //範囲外ならthrowしてほしい
+    if (!target.getValue) throw Error(`Already an event exsists in (${newRow}, ${newColumn})`);
+    sheet.getRange(oldRow+1, oldColumn+2).moveTo(target);
 };
 
 const Option_update = (name: string, value: any): void => {

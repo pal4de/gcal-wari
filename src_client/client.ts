@@ -124,7 +124,12 @@ body.addEventListener('dragover', (e) => {
 });
 body.addEventListener('drop', (e) => {
     e.preventDefault();
-    Card.getDragged().remove();
+    
+    const card = Card.getDragged();
+    const row = Number(card.style.gridRowStart);
+    const column = Number(card.style.gridColumnStart);
+    card.remove();
+    gas.Timetable_removeEvent(row-1, column-1);
 });
 
 type TimetableData = {

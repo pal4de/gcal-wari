@@ -14,9 +14,11 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     const option = new Option(database);
     const timetable = new Timetable(database, eventGallery);
 
-    template.option = option;
-    template.eventGallery = eventGallery;
-    template.timetable = timetable;
+    template.option = String(option);
+    template.eventGallery = String(eventGallery);
+    template.timetable = String(timetable);
+
+    //カレンダーへの反映もここで一回しておきたい
 
     const response = template.evaluate();
     response.setTitle('Gcal-wari: Timetable on Google Calendar');
@@ -119,7 +121,7 @@ class EventGallery {
         const eventDataListRaw = database.getTable('Events');
         this.data = tableToList(eventDataListRaw);
     }
-    readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
     readonly data: Event[];
 
     toString(): string {
@@ -136,18 +138,17 @@ interface OptionData {
 class Option {
     constructor(database: Database) {
         this.sheet = database.getSheet('Options');
-        this.option = {} as OptionData;
+        this.data = {} as OptionData;
 
         const optionsRaw = database.getTable('Options');
         for (const row of optionsRaw) {
             const key = row[0] as keyof OptionData;
             const value = row[1];
-            console.log(key, value, this.option);
-            this.option[key] = value;
+            this.data[key] = value;
         }
     }
     readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
-    readonly option: OptionData;
+    readonly data: OptionData;
 
     toString(): string {
         let result = '';
@@ -158,7 +159,7 @@ class Option {
         ]);
         labelMap.forEach((label, key) => {
             let input = '';
-            const value = this.option[key];
+            const value = this.data[key];
             if (value instanceof Date) {
                 const year = value.getFullYear();
                 const month = zeroPad(value.getMonth()+1);
@@ -220,7 +221,7 @@ class Timetable {
         const dataRaw = database.getTable('Timetable');
         this.data = parseRawData(dataRaw);
     }
-    readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
+    private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
     readonly eventGallery: EventGallery;
     readonly data: TimetableData;
 
