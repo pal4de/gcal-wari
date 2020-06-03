@@ -177,43 +177,30 @@ class Option {
             }
             result += wrap('label', wrap('span', label) + input);
         });
+        result += wrap('button', 'Apply', {name: 'apply'});
         result = wrap('div', result, {class: 'option'})
         return result;
     }
 }
 
 interface TimetableData {
-    start: Date[],
-    end: Date[],
-    sun: string[],
-    mon: string[],
-    tue: string[],
-    wed: string[],
-    thu: string[],
-    fri: string[],
-    sat: string[],
+    start: Date;
+    end: Date;
+    event: [string, string, string, string, string, string, string];
 }
 class Timetable {
     constructor(database: Database, eventGallery: EventGallery) {
         this.sheet = database.getSheet('Timetable');
         this.eventGallery = eventGallery;
     
-        const parseRawData = (raw: any[][]): TimetableData => {
-            const data: TimetableData = {
-                start: [],
-                end: [],
-                sun: [],
-                mon: [],
-                tue: [],
-                wed: [],
-                thu: [],
-                fri: [],
-                sat: [],
-            };
+        const parseRawData = (raw: any[][]): TimetableData[] => {
+            const data: TimetableData[] = [];
             const keyList: (keyof TimetableData)[] = raw.shift()!;
             for (const row of raw) {
-                keyList.forEach((key, index) => {
-                    data[key].push(row[index]);
+                data.push({
+                    start: row.shift(),
+                    end: row.shift(),
+                    event: row as TimetableData['event'],
                 });
             }
             return data;
@@ -223,25 +210,25 @@ class Timetable {
     }
     private readonly sheet: GoogleAppsScript.Spreadsheet.Sheet;
     readonly eventGallery: EventGallery;
-    readonly data: TimetableData;
+    readonly data: TimetableData[];
 
     toString(): string {
         let timetableHtml = '';
     
         // Placeholder
-        [...Array(this.data.start.length)].forEach((_, col) => {
+        [...Array(this.data.length)].forEach((_, col) => {
             [...Array(7)].forEach((_, row) => {
                 timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col+2}/${row+2};`});
             });
         });
     
         // Time
-        this.data.start.forEach((_, index) => {
+        this.data.forEach((week, index) => {
             const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
     
             let html = '';
-            const start = this.data.start[index];
-            const end = this.data.end[index];
+            const start = week.start;
+            const end = week.end;
             html += wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
             html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
             html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
@@ -249,7 +236,7 @@ class Timetable {
         });
     
         // Day
-        const dayList: (keyof Omit<TimetableData, 'start' | 'end'>)[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        const dayList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         dayList.forEach((day, index) => {
             timetableHtml += wrap('div', day, {
                 class: 'timetable_day',
@@ -257,11 +244,10 @@ class Timetable {
             });
         });
     
-        // Event
-        dayList.forEach((key, column) => {
-            this.data[key].forEach((eventName, row) => {
-                if (!eventName) return;
-                const event = Event.find(this.eventGallery.data, eventName);
+        this.data.forEach((week, column) => {
+            week.event.forEach((day, row) => {
+                if (!day) return;
+                const event = Event.find(this.eventGallery.data, day);
                 timetableHtml += event.html({
                     style: `grid-row-start: ${row+2}; grid-column-start: ${column+2};`
                 });

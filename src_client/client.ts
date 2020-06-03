@@ -16,7 +16,16 @@ const gast = google.script.run
     .withFailureHandler(x => console.log(x));
 
 const toast = (message: string, type: string) => {
+    const toast = sel('.toast')!;
+    toast.classList.remove('success');
+    toast.classList.remove('error');
 
+    toast.innerHTML = message;
+    toast.classList.add(type);
+    setTimeout(() => {
+        toast.classList.remove('active');
+    }, 5000);
+    toast.classList.add('active');
 };
 
 class Card {
@@ -119,9 +128,18 @@ selAll('.option input').forEach((input) => {
     input.addEventListener(eventName, (e) => {
         gas.withSuccessHandler((ret) => {
             console.log('Option updated:', `"${input.name}": ${input.value}`);
-            // トースト
         }).Option_update(input.name, input.value);
     });
+});
+
+sel('.option button')!.addEventListener('click', (e) => {
+    gas.withSuccessHandler((ret) => {
+        toast('Successfully applied to the calendar.', 'success');
+    }).apply();
+});
+
+sel('.toast')!.addEventListener('click', (e) => {
+    sel('.toast')!.classList.remove('active');
 });
 
 const body = sel('body')!;

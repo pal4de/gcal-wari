@@ -13,6 +13,7 @@ body {
     font-weight: bold;
     background-color: $color-backround;
     justify-content: center;
+    overflow: hidden;
 }
 
 @mixin shyScrollBar {
@@ -129,6 +130,25 @@ input {
             }
         }
     }
+
+    button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 5px;
+        padding-top: 3px;
+        font: inherit;
+        color: inherit;
+        background: none;
+        border: $color-light 2px solid;
+        border-radius: 8px;
+        transition: border-color 0.1s, color 0.1s;
+        cursor: pointer;
+        &:focus, &:active {
+            border-color: black;
+            color: black;
+            outline: none;
+        }
+    }
 }
 
 .card {
@@ -162,5 +182,34 @@ input {
     .timetable & {
         grid-row-start: 2;
         grid-column-start: 2;
+    }
+}
+
+.toast {
+    display: flex;
+    height: 80px;
+    width: 400px;
+    position: absolute;
+    background-color: #9E9E9E;
+    border-radius: 8px;
+    top: 100%;
+    box-shadow: 0px 10px 20px -5px hsla(236, 29%, 51%, 0.2);
+    transition: top 0.5s;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+        opacity: 0.9;
+    }
+    &.active {
+        top: calc(100% - 100px);
+    }
+    &.success {
+        background-color: #8BC34A;
+        color: white;
+    }
+    &.error {
+        background-color: #f44336;
+        color: white;
     }
 }

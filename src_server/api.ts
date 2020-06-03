@@ -89,3 +89,13 @@ const Option_update = (name: string, value: any): void => {
 
     sheet.getRange(1+index, 2).setValue(value);
 }
+
+const apply = () => {
+    const database = new Database();
+    const eventGallery = new EventGallery(database);
+    const option = new Option(database);
+    const timetable = new Timetable(database, eventGallery); //データの形がキモイ！！！！！！！
+
+    const calendar = CalendarApp.createCalendar(option.data.calendarName);
+    
+}
