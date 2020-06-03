@@ -143,7 +143,10 @@ input {
         border-radius: 8px;
         transition: border-color 0.1s, color 0.1s;
         cursor: pointer;
-        &:focus, &:active {
+        &:focus{
+            outline: none;
+        }
+        &:active {
             border-color: black;
             color: black;
             outline: none;

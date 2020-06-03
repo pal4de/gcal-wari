@@ -94,8 +94,59 @@ const apply = () => {
     const database = new Database();
     const eventGallery = new EventGallery(database);
     const option = new Option(database);
-    const timetable = new Timetable(database, eventGallery); //データの形がキモイ！！！！！！！
+    const timetable = new Timetable(database, eventGallery);
 
     const calendar = CalendarApp.createCalendar(option.data.calendarName);
-    
+    const periodStart= option.data.periodStart;
+    const periodEnd= option.data.periodEnd;
+    const reccurence = CalendarApp.newRecurrence();
+    const startYear= periodStart.getFullYear();
+    const startMonth = periodStart.getMonth();
+    const startDate = periodStart.getDate();
+    const startDay = periodStart.getDay();
+    reccurence.addWeeklyRule().until(periodEnd);
+
+    const eventList = eventGallery.data;
+    const eventLengthMap = eventList.reduce((acc, current) => {
+        acc[current.name] = current.length;
+        return acc;
+    }, {} as {[key: string]: number});
+
+    type EventQueue = {
+        life: number;
+        eventName: string;
+        startTime: Date;
+        day: number;
+    }[];
+    let queue: EventQueue = [];
+    timetable.data.forEach((row) => {
+        row.event.forEach((eventName, i) => {
+            if (!eventName) return;
+            
+            const startTime = new Date(row.start.getTime());
+            startTime.setFullYear(startYear);
+            startTime.setMonth(startMonth);
+            startTime.setDate(startDate + (7 - startDay + i) % 7);
+            
+            queue.push({
+                life: eventLengthMap[eventName]!,
+                eventName: eventName,
+                startTime: startTime,
+                day: i
+            });
+        });
+
+        queue = queue.filter((item) => {
+            item.life -= 1;
+            if (item.life > 0) return true;
+
+            const endTime = new Date(row.end.getTime());
+            endTime.setFullYear(item.startTime.getFullYear());
+            endTime.setMonth(item.startTime.getMonth());
+            endTime.setDate(item.startTime.getDate());
+
+            calendar.createEventSeries(item.eventName, item.startTime, endTime, reccurence);
+            return false;
+        });
+    });
 }

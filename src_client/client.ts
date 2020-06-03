@@ -135,6 +135,8 @@ selAll('.option input').forEach((input) => {
 sel('.option button')!.addEventListener('click', (e) => {
     gas.withSuccessHandler((ret) => {
         toast('Successfully applied to the calendar.', 'success');
+    }).withFailureHandler((err) => {
+        toast(err.message, 'error');
     }).apply();
 });
 
@@ -157,38 +159,3 @@ body.addEventListener('drop', (e) => {
     card.remove();
     gas.Timetable_removeEvent(row-1, column-1);
 });
-
-type TimetableData = {
-    name: string,
-    column: number,
-    row: number,
-};
-type EventData = {
-    name: string,
-    length: number,
-};
-type TimeData = {
-    start: Date,
-    End: Date,
-};
-
-const getTimetableData = (): TimetableData[] => {
-    const result: TimetableData[] = [];
-    selAll('#timetable .card').forEach((card) => {
-        if (!(card instanceof HTMLElement)) throw Error();
-        const timetableData = {
-            name: '',
-            column: 1,
-            row: 1,
-        };
-        timetableData.name = card.dataset.name!;
-        timetableData.column = Number(card.style.gridColumnStart);
-        timetableData.row = Number(card.style.gridRowStart);
-        result.push(timetableData);
-    });
-    return result;
-};
-const sendTimetableData = () => {
-    const data = getTimetableData();
-    google.script.run.req();
-};

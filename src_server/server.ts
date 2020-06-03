@@ -223,12 +223,12 @@ class Timetable {
         });
     
         // Time
-        this.data.forEach((week, index) => {
+        this.data.forEach((row, index) => {
             const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
     
             let html = '';
-            const start = week.start;
-            const end = week.end;
+            const start = row.start;
+            const end = row.end;
             html += wrap('input', '', {type: 'time', class: 'timetable_time_start', value: timeFormat(start)});
             html += wrap('input', '', {type: 'time', class: 'timetable_time_end', value: timeFormat(end)});
             html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
@@ -244,12 +244,12 @@ class Timetable {
             });
         });
     
-        this.data.forEach((week, column) => {
-            week.event.forEach((day, row) => {
-                if (!day) return;
-                const event = Event.find(this.eventGallery.data, day);
+        this.data.forEach((row, rowNum) => {
+            row.event.forEach((eventName, columnNum) => {
+                if (!eventName) return;
+                const event = Event.find(this.eventGallery.data, eventName);
                 timetableHtml += event.html({
-                    style: `grid-row-start: ${row+2}; grid-column-start: ${column+2};`
+                    style: `grid-row-start: ${rowNum+2}; grid-column-start: ${columnNum+2};`
                 });
             });
         });
