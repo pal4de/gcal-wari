@@ -62,6 +62,8 @@ const Timetable_addEvent = (row: number, column: number, eventName: string): voi
     const database = new Database();
     const sheet = database.getSheet('Timetable');
     sheet.getRange(1+row, 2+column).setValue(eventName); //範囲外ならthrowしてほしい
+
+    // CalendarApp.getCalendarsByName()
 };
 const Timetable_removeEvent = (row: number, column: number): void => {
     const database = new Database();

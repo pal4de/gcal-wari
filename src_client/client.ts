@@ -100,11 +100,11 @@ selAll('.timetable_placeholder').forEach((placeholder) => {
 
         const ghost = Card.getGhost();
         const card = Card.getDragged();
-
         const oldRow = Number(card.style.gridRowStart);
         const oldColmun = Number(card.style.gridColumnStart);
         const newRow = Number(ghost.style.gridRowStart);
         const newColmun = Number(ghost.style.gridColumnStart);
+
         card.style.gridRowStart = String(newRow);
         card.style.gridColumnStart = String(newColmun);
         gas.Timetable_moveEvent(-1+oldRow, -1+oldColmun, -1+newRow, -1+newColmun);
