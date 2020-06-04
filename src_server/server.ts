@@ -254,6 +254,6 @@ class Timetable {
             });
         });
 
-        return wrap('div', timetableHtml, {id: 'timetable', class: 'timetable'});
+        return wrap('div', timetableHtml, {class: 'timetable'});
     }
 }

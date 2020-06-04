@@ -191,7 +191,7 @@ input {
 .toast {
     display: flex;
     height: 80px;
-    width: 400px;
+    min-width: 400px;
     position: absolute;
     background-color: #9E9E9E;
     border-radius: 8px;
@@ -201,6 +201,7 @@ input {
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    padding: 0 30px;
     &:hover {
         opacity: 0.9;
     }
@@ -214,5 +215,17 @@ input {
     &.error {
         background-color: #f44336;
         color: white;
+    }
+
+    a {
+        text-decoration: none;
+        border-bottom: solid white 2px;
+        padding: 2px 0.2em 0;
+        &:visited {
+            color: inherit;
+        }
+        &:hover {
+            background-color: hsla(0, 0%, 100%, 0.2);
+        }
     }
 }

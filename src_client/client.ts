@@ -47,18 +47,19 @@ class Card {
     
             const ghost = cloneNode(card);
             ghost.id = 'ghost';
-            sel('#timetable')!.appendChild(ghost);
+            sel('.timetable')!.appendChild(ghost);
         });
         
         card.addEventListener('dragend', (e) => {
             Card.getGhost().remove();
         });
 
-        card.addEventListener('drop', (e) => {
+        card.addEventListener('drop', (e) => { // Cancel drag
             e.preventDefault();
             e.stopPropagation();
 
-            Card.getDragged().id = '';
+            const dragged = Card.getDragged();
+            dragged.id = '';
         });
     };
 }
@@ -76,14 +77,8 @@ selAll('.eventList .card').forEach((card) => {
 
     card.addEventListener('dragstart', (e) => {
         setTimeout(() => {
-            card.classList.add('placeholder')
-            card.id = '';
+            card.classList.add('placeholder');
         }, 1);
-
-        const clone = cloneNode(card);
-        Card.setEvent(clone);
-        clone.id = 'dragged';
-        sel('#timetable')!.appendChild(clone);
     });
     card.addEventListener('dragend', (e) => {
         card.classList.remove('placeholder');
@@ -108,17 +103,30 @@ selAll('.timetable_placeholder').forEach((placeholder) => {
         e.preventDefault();
 
         const ghost = Card.getGhost();
-        const card = Card.getDragged();
-        const oldRow = Number(card.style.gridRowStart);
-        const oldColmun = Number(card.style.gridColumnStart);
+        const dragged = Card.getDragged();
         const newRow = Number(ghost.style.gridRowStart);
         const newColmun = Number(ghost.style.gridColumnStart);
 
-        card.style.gridRowStart = String(newRow);
-        card.style.gridColumnStart = String(newColmun);
-        gas.Timetable_moveEvent(-1+oldRow, -1+oldColmun, -1+newRow, -1+newColmun);
+        dragged.id = '';
+        if (dragged.matches('.timetable .card')) { // move
+            const oldRow = Number(dragged.style.gridRowStart);
+            const oldColmun = Number(dragged.style.gridColumnStart);
+    
+            dragged.style.gridRowStart = String(newRow);
+            dragged.style.gridColumnStart = String(newColmun);
+            gas.Timetable_moveEvent(-1+oldRow, -1+oldColmun, -1+newRow, -1+newColmun);
+        } else if (dragged.matches('.eventList .card')) { // new
+            const clone = cloneNode(dragged) as HTMLElement;
+            clone.classList.remove('placeholder'); // キモい
+            Card.setEvent(clone);
 
-        card.id = '';
+            clone.style.gridRowStart = String(newRow);
+            clone.style.gridColumnStart = String(newColmun);
+            sel('.timetable')!.appendChild(clone);
+            gas.Timetable_addEvent(-1+newRow, -1+newColmun, clone.dataset.name);
+        } else {
+            throw Error();
+        }
     });
 });
 
@@ -134,7 +142,8 @@ selAll('.option input').forEach((input) => {
 
 sel('.option button')!.addEventListener('click', (e) => {
     gas.withSuccessHandler((ret) => {
-        toast('Successfully applied to the calendar.', 'success');
+        const date = (sel('[name=periodStart]') as HTMLInputElement).value.replace(/-/g, '/');
+        toast(`Successfully applied to <a href="https://calendar.google.com/calendar/r/week/${date}" target="_blank">the calendar</a>. `, 'success');
     }).withFailureHandler((err) => {
         toast(err.message, 'error');
     }).apply();
@@ -150,12 +159,14 @@ body.addEventListener('dragover', (e) => {
     if (!e.dataTransfer) throw Error();
     e.dataTransfer.dropEffect = 'move';
 });
-body.addEventListener('drop', (e) => {
+body.addEventListener('drop', (e) => { // remove from timetable
     e.preventDefault();
     
-    const card = Card.getDragged();
-    const row = Number(card.style.gridRowStart);
-    const column = Number(card.style.gridColumnStart);
-    card.remove();
+    const dragged = Card.getDragged();
+    if (!dragged.matches('.timetable #dragged')) return;
+
+    const row = Number(dragged.style.gridRowStart);
+    const column = Number(dragged.style.gridColumnStart);
+    dragged.remove();
     gas.Timetable_removeEvent(row-1, column-1);
 });
