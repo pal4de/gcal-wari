@@ -3,4 +3,4 @@ node_modules
 /app/*
 !/app/appsscript.json
 
-/dest/**/*
+/dest

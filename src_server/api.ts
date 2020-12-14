@@ -6,7 +6,7 @@ const Event_newEvent = (eventName: string, length: number = 1): void => {
     const sheet = database.getSheet('Events');
 
     //重複チェック！
-    
+
     sheet.appendRow([eventName, length]);
 };
 const Event_deleteEvent = (eventName: string): void => {
@@ -24,7 +24,7 @@ const Event_changeEventName = (oldName: string, newName: string): void => {
     if (!oldName) throw Error('Event name is required');
     const database = new Database();
     const sheet = database.getSheet('Events');
-    
+
     const lastRowNumber = sheet.getLastRow();
     const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
     const index = eventNameList.indexOf(oldName);
@@ -36,7 +36,7 @@ const Event_changeEventLength = (eventName: string, newLength: number): void => 
     if (!eventName) throw Error('Event name is required');
     const database = new Database();
     const sheet = database.getSheet('Events');
-    
+
     const lastRowNumber = sheet.getLastRow();
     const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
     const index = eventNameList.indexOf(eventName);
@@ -48,7 +48,7 @@ const Event_moveEvent = (eventName: string, newPosition: number): void => {
     if (!eventName) throw Error('Event name is required');
     const database = new Database();
     const sheet = database.getSheet('Events');
-    
+
     const lastRowNumber = sheet.getLastRow();
     const eventNameList = sheet.getRange(2, 1, lastRowNumber-1, 1).getValues().flat();
     const index = eventNameList.indexOf(eventName);
@@ -62,8 +62,6 @@ const Timetable_addEvent = (row: number, column: number, eventName: string): voi
     const database = new Database();
     const sheet = database.getSheet('Timetable');
     sheet.getRange(1+row, 2+column).setValue(eventName); //範囲外ならthrowしてほしい
-
-    // CalendarApp.getCalendarsByName()
 };
 const Timetable_removeEvent = (row: number, column: number): void => {
     const database = new Database();
@@ -77,11 +75,15 @@ const Timetable_moveEvent = (oldRow: number, oldColumn: number, newRow: number, 
     if (!target.getValue) throw Error(`Already an event exsists in (${newRow}, ${newColumn})`);
     sheet.getRange(1+oldRow, 2+oldColumn).moveTo(target);
 };
+// const Timetable_changeTime = (type: 'start' | 'end', value: Date): void => {
+//     const database = new Database();
+//     const sheet = database.getSheet('Timetable');
+// }
 
 const Option_update = (name: string, value: any): void => {
     const database = new Database();
     const sheet = database.getSheet('Options');
-    
+
     const lastRowNumber = sheet.getLastRow();
     const optionNameList = sheet.getRange(1, 1, lastRowNumber, 1).getValues().flat();
     const index = optionNameList.indexOf(name);
@@ -122,12 +124,12 @@ const apply = () => {
     timetable.data.forEach((row) => {
         row.event.forEach((eventName, i) => {
             if (!eventName) return;
-            
+
             const startTime = new Date(row.start.getTime());
             startTime.setFullYear(startYear);
             startTime.setMonth(startMonth);
             startTime.setDate(startDate + (7 - startDay + i) % 7);
-            
+
             queue.push({
                 life: eventLengthMap[eventName]!,
                 eventName: eventName,
