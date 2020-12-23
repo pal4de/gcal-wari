@@ -4,7 +4,7 @@ const doGet = (e: GoogleAppsScript.Events.DoGet) => {
     const getContent = (name: string): string => {
         return HtmlService.createHtmlOutputFromFile(name).getContent();
     };
-    
+
     const template = HtmlService.createTemplateFromFile('index');
     template.style = getContent('style.css');
     template.script = getContent('script.js');
@@ -55,17 +55,35 @@ class Database {
         // バージョン情報を残しておきたい...
         const property = PropertiesService.getScriptProperties();
         let databaseId = property.getProperty('db_events');
-        if (databaseId == null) {
-            // // initialize database
-            // const spreadsheet = SpreadsheetApp.create('Events');
-            // Logger.log('Event Database has created: %s', spreadsheet.getUrl());
-            // databaseId = spreadsheet.getId();
-            databaseId = '1DHYYdiGVl7wh0OsbCi4DhItkIeyYs1xZNzNQglYFFMM';
-            property.setProperty('db_events', databaseId);
+        if (databaseId) {
+            this.database = SpreadsheetApp.openById(databaseId);
+        } else {
+            this.database = this.createDatabase();
+            property.setProperty('db_events', this.database.getId());
         }
-        this.database = SpreadsheetApp.openById(databaseId);
     }
     database: GoogleAppsScript.Spreadsheet.Spreadsheet;
+
+    createDatabase(): GoogleAppsScript.Spreadsheet.Spreadsheet {
+        const spreadsheet = SpreadsheetApp.create('Events Data');
+        Logger.log('Event Database has created: %s', spreadsheet.getUrl());
+
+        const timetableSheet = spreadsheet.insertSheet('Timetable');
+        const timetableKey = ['start', 'end', 'sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        timetableSheet.appendRow(timetableKey);
+
+        const eventSheet = spreadsheet.insertSheet('Events');
+        const eventKey = ['name', 'length'];
+        eventSheet.appendRow(eventKey);
+
+        const optionsSheet = spreadsheet.insertSheet('Options');
+        const todayStr = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy/m/d');
+        optionsSheet.appendRow(['calendarName', '']);
+        optionsSheet.appendRow(['periodStart', todayStr]);
+        optionsSheet.appendRow(['periodEnd', todayStr]);
+
+        return spreadsheet;
+    }
 
     getSheet(name: SheetName): GoogleAppsScript.Spreadsheet.Sheet {
         const sheet = this.database.getSheetByName(name);
@@ -192,7 +210,7 @@ class Timetable {
     constructor(database: Database, eventGallery: EventGallery) {
         this.sheet = database.getSheet('Timetable');
         this.eventGallery = eventGallery;
-    
+
         const parseRawData = (raw: any[][]): TimetableData[] => {
             const data: TimetableData[] = [];
             const keyList: (keyof TimetableData)[] = raw.shift()!;
@@ -214,18 +232,18 @@ class Timetable {
 
     toString(): string {
         let timetableHtml = '';
-    
+
         // Placeholder
         [...Array(this.data.length)].forEach((_, col) => {
             [...Array(7)].forEach((_, row) => {
                 timetableHtml += wrap('div', '', {class: 'timetable_placeholder', style: `grid-area: ${col+2}/${row+2};`});
             });
         });
-    
+
         // Time
         this.data.forEach((row, index) => {
             const timeFormat = (date: Date) => `${zeroPad(date.getHours())}:${zeroPad(date.getMinutes())}`;
-    
+
             let html = '';
             const start = row.start;
             const end = row.end;
@@ -234,7 +252,7 @@ class Timetable {
             html = wrap('div', html, {class: 'timetable_time', style: `grid-area: ${Number(index) + 2}/1;`});
             timetableHtml += html;
         });
-    
+
         // Day
         const dayList = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
         dayList.forEach((day, index) => {
@@ -243,7 +261,7 @@ class Timetable {
                 style: `grid-area: 1/${index + 2};`
             });
         });
-    
+
         this.data.forEach((row, rowNum) => {
             row.event.forEach((eventName, columnNum) => {
                 if (!eventName) return;
