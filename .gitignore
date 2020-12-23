@@ -4,3 +4,7 @@ node_modules
 !/app/appsscript.json
 
 /dest
+
+/creds.json
+/.clasp.json
+/.clasprc.json
