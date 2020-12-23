@@ -5,6 +5,6 @@ node_modules
 
 /dest
 
-/creds.json
-/.clasp.json
-/.clasprc.json
+creds.json
+.clasp.json
+.clasprc.json
